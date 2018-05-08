@@ -3,13 +3,13 @@ const path = require('path')
 const url = require('url')
 const fs = require('fs')
 
-const DEV = process.env.NODE_ENV.trim() === 'development'
+const DEV = !!process.env.NODE_ENV
 DEV ? require('electron-reload')(__dirname) : null
 
 let mainWindow
 
 const createWindow = () => {
-    mainWindow = new BrowserWindow({show: false, width: 1235, height: 832, frame: false})
+    mainWindow = new BrowserWindow({show: false, width: 1235, height: 832, minWidth: 1022, minHeight: 670, frame: false})
 
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, './index.html'),
