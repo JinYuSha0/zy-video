@@ -19,7 +19,6 @@ import PageLogin from './page/login/login'
 const root = document.getElementById('app')
 export const history = createHistory()
 export const { store, persistor } = createStore(rootReducer, rootSaga, () => {
-    process.env.loaded = true
     ipcRenderer.send('show-window')
     render(<App/>, root)
 })
