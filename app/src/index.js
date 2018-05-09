@@ -10,6 +10,7 @@ import { Provider } from 'react-redux'
 import { ConnectedRouter } from 'react-router-redux'
 import { Route, Switch, Link } from 'react-router-dom'
 import { ipcRenderer } from 'electron'
+import Window from './components/window/window'
 
 import Header from './components/header/header'
 
@@ -37,6 +38,10 @@ class App extends Component {
                                 <Route path="/login" component={PageLogin}/>
                             </Switch>
                         </div>
+
+                        <Window>
+                            <h1>Children</h1>
+                        </Window>
                     </div>
                 </ConnectedRouter>
             </Provider>

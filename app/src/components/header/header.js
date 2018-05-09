@@ -34,7 +34,7 @@ class Header extends Component {
     }
 
     onLoginClick = () => {
-        fs.writeFileSync('./modal.html', "11")
+        fs.writeFileSync('./window.html', "11")
     }
 
     render() {
