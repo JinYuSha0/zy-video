@@ -4,8 +4,6 @@ const path = require('path')
 const webpack = require('webpack')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 
-process.env.NODE_ENV = 'development'
-
 module.exports = {
     watch: true,
     target: 'electron-main',

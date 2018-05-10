@@ -8,22 +8,35 @@ import rootSaga from './saga/rootSaga'
 import createHistory from 'history/createHashHistory'
 import { Provider } from 'react-redux'
 import { ConnectedRouter } from 'react-router-redux'
-import { Route, Switch, Link } from 'react-router-dom'
+import { Route, Switch } from 'react-router-dom'
 import { ipcRenderer } from 'electron'
-import Window from './components/window/window'
+import EventEmitter from 'events'
+//import { login } from './service/index'
 
 import Header from './components/header/header'
 
 import PageIndex from './page/index/index'
 import PageLogin from './page/login/login'
 
+const event = new EventEmitter()
+event.on('login', async (windowName, channel, params) => {
+    /*const result = login(params)
+    if(result) {
+        ipcRenderer.send('close-window', windowName)
+    } else {
+        ipcRenderer.send('return-message', windowName, channel, params)
+    }*/
+})
+
 const root = document.getElementById('app')
 export const history = createHistory()
 export const { store, persistor } = createStore(rootReducer, rootSaga, () => {
     ipcRenderer.send('show-window')
+    ipcRenderer.on('message', (e, windowName, channel, params) => {
+        event.emit(channel, windowName, channel, params)
+    })
     render(<App/>, root)
 })
-
 class App extends Component {
     render() {
         return (
@@ -39,9 +52,6 @@ class App extends Component {
                             </Switch>
                         </div>
 
-                        <Window>
-                            <h1>Children</h1>
-                        </Window>
                     </div>
                 </ConnectedRouter>
             </Provider>

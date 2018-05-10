@@ -50,6 +50,10 @@ module.exports = {
                 use: {loader: "url-loader", options: {limit: 1000, name: 'images/[name].[hash:4].[ext]'}}
             },
             {
+                test: /\.(html)$/,
+                use: {loader: 'file-loader', options: {name: '[name].[hash:4].[ext]'}}
+            },
+            {
                 test: /\.jsx?$/,
                 use: {loader: 'babel-loader'},
                 exclude: /node_modules/

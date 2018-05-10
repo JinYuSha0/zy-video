@@ -2,9 +2,76 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>$Title$</title>
+    <title>登录</title>
+    <link rel="stylesheet" type="text/css" href="login.css">
 </head>
 <body>
-$END$
+<div class="login-layout">
+    <span class="close"></span>
+
+    <form action="#" class="login" id="form">
+        <div class="logo"></div>
+
+        <div class="input-group">
+            <div class="input-wrapper">
+                <span class="icon i-phone"></span>
+                <input name="account" class="input account" placeholder="账号">
+            </div>
+
+            <div class="input-wrapper">
+                <span class="icon i-password"></span>
+                <input name="password" class="input password" type="password" placeholder="密码">
+            </div>
+        </div>
+
+        <div class="bar">
+            <p class="prompt"></p>
+        </div>
+
+        <button type="submit" class="login-btn">登录</button>
+    </form>
+</div>
+
+
+<script>
+    const windowName = 'login',
+        { ipcRenderer } = require('electron'),
+        close = document.querySelector('.close'),
+        form = document.getElementById('form'),
+        prompt = document.querySelector('.prompt')
+
+    ipcRenderer.on('login', (event, result) => {
+        console.log(result)
+    })
+
+    close.addEventListener('click', (e) => {
+        ipcRenderer.send('close-window', windowName)
+    })
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault()
+        const account = document.querySelector('.account').value,
+            password = document.querySelector('.password').value
+
+        if(!account) {
+            prompt.innerHTML = '请输入账号'
+            return
+        }
+
+        if(!password) {
+            prompt.innerHTML = '请输入密码'
+            return
+        }
+
+        ipcRenderer.send('message', windowName, 'login', {account, password})
+    })
+
+    const inputGroup = document.querySelector('.input-group')
+    inputGroup.addEventListener('click', () => {
+        if(!!prompt.innerHTML) {
+            prompt.innerHTML = ''
+        }
+    })
+</script>
 </body>
 </html>

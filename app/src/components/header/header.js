@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { jump } from '../../util/util'
 import { ipcRenderer } from 'electron'
-import fs from 'fs'
+import { LOGIN, login_options } from '../../../extra/login/login'
 
 class Header extends Component {
     constructor(props) {
@@ -34,7 +34,10 @@ class Header extends Component {
     }
 
     onLoginClick = () => {
-        fs.writeFileSync('./window.html', "11")
+        const { user } = this.props
+        if(!user.get('isLogin')) {
+            ipcRenderer.send('open-window', LOGIN, login_options)
+        }
     }
 
     render() {
@@ -51,7 +54,7 @@ class Header extends Component {
                     <div className="barWrapper">
                         <div className="user" onClick={this.onLoginClick}>
                             <span className="avatar"></span>
-                            <p className="userName">{user.get('isLogin') ? user.getIn(['userInfo', 'nickName']) : '未登录'}</p>
+                            <p className="userName">{user.get('isLogin') ? user.getIn(['userInfo', 'nickName']) : '登录'}</p>
                         </div>
 
                         <span className="icon settings"/>
