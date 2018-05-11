@@ -6,6 +6,10 @@ import { bindActionCreators } from 'redux'
 import { jump } from '../../util/util'
 import { ipcRenderer } from 'electron'
 import { LOGIN, login_options } from '../../../extra/login/login'
+import { store } from '../../index'
+
+import randomModal from '../randomModal/randomModal'
+import UserModal from './userModal/userModal'
 
 class Header extends Component {
     constructor(props) {
@@ -33,10 +37,12 @@ class Header extends Component {
         ipcRenderer.send('close-all-window')
     }
 
-    onLoginClick = () => {
+    onLoginClick = (e) => {
         const { user } = this.props
         if(!user.get('isLogin')) {
             ipcRenderer.send('open-window', LOGIN, login_options)
+        } else {
+            new randomModal(<UserModal store={store}/>, e.target, 140, 90)
         }
     }
 
@@ -81,5 +87,6 @@ class Header extends Component {
 export default connect(
     ({user}) => ({user}),
     (dispatch) => bindActionCreators({
+
     }, dispatch)
 )(Header)

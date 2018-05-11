@@ -9,7 +9,7 @@ let mainWindow
 
 const createWindow = () => {
     let otherWindow = {}
-    mainWindow = new BrowserWindow({show: true, width: 1235, height: 832, minWidth: 1022, minHeight: 670, frame: false, backgroundColor: '#F6F6F6'})
+    mainWindow = new BrowserWindow({show: false, width: 1235, height: 832, minWidth: 1022, minHeight: 670, frame: false, backgroundColor: '#F6F6F6'})
 
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, './index.html'),

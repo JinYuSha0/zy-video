@@ -11,29 +11,20 @@ import { ConnectedRouter } from 'react-router-redux'
 import { Route, Switch } from 'react-router-dom'
 import { ipcRenderer } from 'electron'
 import EventEmitter from 'events'
-//import { login } from './service/index'
 
 import Header from './components/header/header'
 
 import PageIndex from './page/index/index'
 import PageLogin from './page/login/login'
 
-const event = new EventEmitter()
-event.on('login', async (windowName, channel, params) => {
-    /*const result = login(params)
-    if(result) {
-        ipcRenderer.send('close-window', windowName)
-    } else {
-        ipcRenderer.send('return-message', windowName, channel, params)
-    }*/
-})
+import { cLogin } from './redux/reducers/user'
 
 const root = document.getElementById('app')
 export const history = createHistory()
 export const { store, persistor } = createStore(rootReducer, rootSaga, () => {
     ipcRenderer.send('show-window')
     ipcRenderer.on('message', (e, windowName, channel, params) => {
-        event.emit(channel, windowName, channel, params)
+        windowEvent.emit(channel, windowName, channel, params)
     })
     render(<App/>, root)
 })
@@ -58,3 +49,8 @@ class App extends Component {
         )
     }
 }
+
+const windowEvent = new EventEmitter()
+windowEvent.on('login', (windowName, channel, params) => {
+    store.dispatch(cLogin({ windowName, channel, params }))
+})

@@ -127,3 +127,7 @@ html, body {
 .login-btn:active {
     background-color: #1077c1;
 }
+
+.disable {
+    background-color: #63aee4 !important;
+}

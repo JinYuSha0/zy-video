@@ -24,3 +24,8 @@ export default handleActions({
     [LOGOUT_SUCCESS]: state => INITIAL_STATE,
 }, INITIAL_STATE)
 
+export const cLogin = createAction(LOGIN, (data) => (data))
+export const cLoginSuccess = createAction(LOGIN_SUCCESS, (data) => (data))
+
+export const cLogout = createAction(LOGOUT)
+export const cLogoutSuccess = createAction(LOGOUT_SUCCESS)

@@ -38,10 +38,38 @@
         { ipcRenderer } = require('electron'),
         close = document.querySelector('.close'),
         form = document.getElementById('form'),
-        prompt = document.querySelector('.prompt')
+        prompt = document.querySelector('.prompt'),
+        btn = document.querySelector('.login-btn')
 
-    ipcRenderer.on('login', (event, result) => {
-        console.log(result)
+    const util = {
+        hasClass: (elem, cls) => {
+            if(elem) {
+                return elem.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
+            } else {
+                return false
+            }
+        },
+        removeClass: (elem, cls) => {
+            if (util.hasClass(elem, cls)) {
+                const reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
+                elem.className = elem.className.replace(reg, '');
+            }
+        },
+        addClass: (elem, cls) => {
+            if (!util.hasClass(elem, cls)) {
+                elem.className += " " + cls;
+            }
+        }
+    }
+
+    ipcRenderer.on('message', (event, channel, message = '登录出错') => {
+        switch (channel) {
+            case 'login':
+                prompt.innerHTML = message
+                btn.disable = ''
+                util.removeClass(btn, 'disable')
+                break
+        }
     })
 
     close.addEventListener('click', (e) => {
@@ -50,10 +78,10 @@
 
     form.addEventListener('submit', (e) => {
         e.preventDefault()
-        const account = document.querySelector('.account').value,
+        const phone = document.querySelector('.account').value,
             password = document.querySelector('.password').value
 
-        if(!account) {
+        if(!phone) {
             prompt.innerHTML = '请输入账号'
             return
         }
@@ -63,7 +91,20 @@
             return
         }
 
-        ipcRenderer.send('message', windowName, 'login', {account, password})
+        if(!(/^1[3456789]\d{9}$/.test(phone))) {
+            prompt.innerHTML = '请输入正确的账号'
+            return
+        }
+
+        if(password.length < 6) {
+            prompt.innerHTML = '请输入正确的密码'
+            return
+        }
+
+        ipcRenderer.send('message', windowName, 'login', {phone, password})
+
+        util.addClass(btn, 'disable')
+        btn.disable = 'disable'
     })
 
     const inputGroup = document.querySelector('.input-group')

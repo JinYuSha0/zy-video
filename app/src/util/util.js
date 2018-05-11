@@ -89,3 +89,15 @@ const objToUrlParams = (obj) => {
     }
     return ''
 }
+
+//判断是否某个元素的子元素
+export const isParent =  (obj, parentObj) =>{
+    if(obj === parentObj) return false
+    while (obj != undefined && obj != null && obj.tagName.toUpperCase() != 'BODY'){
+        if (obj == parentObj){
+            return true
+        }
+        obj = obj.parentNode
+    }
+    return false
+}

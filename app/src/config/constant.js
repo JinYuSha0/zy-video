@@ -1,1 +1,1 @@
-export const URL = ''
+export const URL = 'http://video.yourhr.com.cn/zhibo/admin/'
