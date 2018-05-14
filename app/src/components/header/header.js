@@ -10,6 +10,7 @@ import { store } from '../../index'
 
 import randomModal from '../randomModal/randomModal'
 import UserModal from './userModal/userModal'
+import SettingsModal from './settingsModal/settingsModal'
 
 class Header extends Component {
     constructor(props) {
@@ -46,6 +47,13 @@ class Header extends Component {
         }
     }
 
+    onSettingClick = (e) => {
+        const { user } = this.props
+        if(user.get('isLogin')) {
+            new randomModal(<SettingsModal store={store}/>, e.target, 140, 90)
+        }
+    }
+
     render() {
         const { isMax } = this.state
         const { user } = this.props
@@ -58,12 +66,12 @@ class Header extends Component {
 
                 <div className="headerController">
                     <div className="barWrapper">
-                        <div className="user" onClick={this.onLoginClick}>
+                        <div className="user">
                             <span className="avatar"></span>
-                            <p className="userName">{user.get('isLogin') ? user.getIn(['userInfo', 'nickName']) : '登录'}</p>
+                            <p className="userName" onClick={this.onLoginClick}>{user.get('isLogin') ? user.getIn(['userInfo', 'nickName']) : '登录'}</p>
                         </div>
 
-                        <span className="icon settings"/>
+                        <span className="icon settings" onClick={this.onSettingClick}/>
                     </div>
 
                     <span className="divider"></span>
