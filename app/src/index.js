@@ -15,15 +15,17 @@ import EventEmitter from 'events'
 import Header from './components/header/header'
 
 import PageIndex from './page/index/index'
-import PageLogin from './page/login/login'
+import PagePlayer from './page/player/player'
 
 import { cLogin } from './redux/reducers/user'
+import { cWindowMax, cWindowMin } from './redux/reducers/window'
 
 const root = document.getElementById('app')
 export const history = createHistory()
 export const { store, persistor } = createStore(rootReducer, rootSaga, () => {
     ipcRenderer.send('show-window')
     ipcRenderer.on('message', (e, windowName, channel, params) => {
+        console.log(channel)
         windowEvent.emit(channel, windowName, channel, params)
     })
     render(<App/>, root)
@@ -39,7 +41,7 @@ class App extends Component {
                         <div className="layoutContent">
                             <Switch>
                                 <Route exact path="/" component={PageIndex}/>
-                                <Route path="/login" component={PageLogin}/>
+                                <Route path="/player" component={PagePlayer}/>
                             </Switch>
                         </div>
 
@@ -54,3 +56,10 @@ const windowEvent = new EventEmitter()
 windowEvent.on('login', (windowName, channel, params) => {
     store.dispatch(cLogin({ windowName, channel, params }))
 })
+windowEvent.on('maximize', () => {
+    store.dispatch(cWindowMax())
+})
+windowEvent.on('unmaximize', () => {
+    store.dispatch(cWindowMin())
+})
+

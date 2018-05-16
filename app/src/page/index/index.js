@@ -10,7 +10,7 @@ class PageIndex extends Component {
         return (
             <div>
                 <h1>Hello World!</h1>
-                <Link to="/login">login</Link>
+                <Link to="/player">player</Link>
             </div>
         )
     }

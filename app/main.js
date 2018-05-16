@@ -21,6 +21,15 @@ const createWindow = () => {
         mainWindow = null
     })
 
+    mainWindow.on('maximize', () => {
+        console.log('最大化')
+        mainWindow.send('message', null, 'maximize')
+    })
+
+    mainWindow.on('unmaximize', () => {
+        mainWindow.send('message', null, 'maximize')
+    })
+
     //显示
     ipcMain.on('show-window', () => {
         mainWindow.show()

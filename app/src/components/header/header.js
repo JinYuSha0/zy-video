@@ -7,31 +7,23 @@ import { jump } from '../../util/util'
 import { ipcRenderer } from 'electron'
 import { LOGIN, login_options } from '../../../extra/login/login'
 import { store } from '../../index'
+import { cWindowMax, cWindowMin } from '../../redux/reducers/window'
 
 import randomModal from '../randomModal/randomModal'
 import UserModal from './userModal/userModal'
 import SettingsModal from './settingsModal/settingsModal'
 
 class Header extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            isMax: false
-        }
-    }
-
     onMinClick = () => {
         ipcRenderer.send('minimize-window')
     }
 
     onMaxClick = () => {
-        ipcRenderer.send('maximize-window')
-        this.setState({ isMax: true })
+        this.props.windowMax()
     }
 
     onUnMaxClick = () => {
-        ipcRenderer.send('unmaximize-window')
-        this.setState({ isMax: false })
+        this.props.windowMin()
     }
 
     onCloseClick = () => {
@@ -55,8 +47,7 @@ class Header extends Component {
     }
 
     render() {
-        const { isMax } = this.state
-        const { user } = this.props
+        const { user, window } = this.props
         return (
             <header className="layoutHeader">
                 <div className="headerLogo" onClick={() => {jump('/')}}>
@@ -80,7 +71,7 @@ class Header extends Component {
                         <span className="icon min" onClick={this.onMinClick}/>
 
                         {
-                            isMax ? <span className="icon unmax" onClick={this.onUnMaxClick}/> :
+                            window.get('isMax') ? <span className="icon unmax" onClick={this.onUnMaxClick}/> :
                                 <span className="icon max" onClick={this.onMaxClick}/>
                         }
 
@@ -93,8 +84,9 @@ class Header extends Component {
 }
 
 export default connect(
-    ({user}) => ({user}),
+    ({user, window}) => ({user, window}),
     (dispatch) => bindActionCreators({
-
+        windowMax: cWindowMax,
+        windowMin: cWindowMin,
     }, dispatch)
 )(Header)

@@ -1,11 +1,17 @@
+import './player.less'
+
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-class PageLogin extends Component {
+import Player from '../../components/player/player'
+
+class PagePlayer extends Component {
     render() {
         return (
-            <h1>login</h1>
+            <div className="pagePlayer">
+                <Player/>
+            </div>
         )
     }
 }
@@ -14,4 +20,4 @@ export default connect(
     ({}) => ({}),
     (dispatch) => bindActionCreators({
     }, dispatch)
-)(PageLogin)
+)(PagePlayer)
