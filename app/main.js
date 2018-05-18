@@ -22,12 +22,11 @@ const createWindow = () => {
     })
 
     mainWindow.on('maximize', () => {
-        console.log('最大化')
         mainWindow.send('message', null, 'maximize')
     })
 
     mainWindow.on('unmaximize', () => {
-        mainWindow.send('message', null, 'maximize')
+        mainWindow.send('message', null, 'unmaximize')
     })
 
     //显示
