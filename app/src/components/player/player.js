@@ -56,6 +56,14 @@ export default class Player extends Component {
         }])*/
     }
 
+    componentWillUnmount() {
+        if(!!this.player) {
+            this.player.pause();
+            this.player.dispose()
+            this.player = null
+        }
+    }
+
     render() {
         return (
             <div className="zy-player">

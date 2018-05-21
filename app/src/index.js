@@ -25,7 +25,6 @@ export const history = createHistory()
 export const { store, persistor } = createStore(rootReducer, rootSaga, () => {
     ipcRenderer.send('show-window')
     ipcRenderer.on('message', (e, windowName, channel, params) => {
-        console.log(channel)
         windowEvent.emit(channel, windowName, channel, params)
     })
     render(<App/>, root)

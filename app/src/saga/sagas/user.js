@@ -1,8 +1,8 @@
 import React from 'react'
-import  { put } from 'redux-saga/effects'
+import  { put, call } from 'redux-saga/effects'
+import { store, persistor } from '../../index'
 import { ipcRenderer } from "electron"
 import { sLogin } from "../../service"
-import { store } from '../../index'
 import { Modal, Input, message } from 'antd'
 import crypto from 'crypto'
 import { cLoginSuccess, cLogoutSuccess, cOpenLockSuccess, cCloseLockSuccess } from '../../redux/reducers/user'
@@ -12,17 +12,10 @@ const confirm = Modal.confirm
 export function* login ({ payload }) {
     const { windowName, channel, params } = payload
     try {
-        const result = yield sLogin(params)
+        const result = yield call(sLogin, params)
         if(result.status === 'success') {
             ipcRenderer.send('close-window', windowName)
-
-            //todo
-            yield put(cLoginSuccess(Object.assign(result.data, {
-                userInfo: {
-                    level: 1,
-                    nickName: '邵瑾瑜'
-                }
-            })))
+            yield put(cLoginSuccess(result.data))
         } else {
             ipcRenderer.send('return-message', windowName, channel, result.message)
         }
@@ -32,6 +25,7 @@ export function* login ({ payload }) {
 }
 
 export function* logout() {
+    persistor.purge()
     yield put(cLogoutSuccess())
 }
 

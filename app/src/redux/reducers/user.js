@@ -14,6 +14,8 @@ export const CLOSE_LOCK_SUCCESS = 'CLOSE_LOCK_SUCCESS'
 
 export const INITIAL_STATE = Immutable.fromJS({
     isLogin: false,
+    loginId: '',
+    token: '',
     userInfo: {
         level: null,
         nickName: null,

@@ -1,7 +1,7 @@
 import { store, history } from '../index'
 
 //延时
-const delay = (ms, todo, err) => {
+export const delay = (ms, todo, err) => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             if(!!todo) todo()
@@ -26,7 +26,7 @@ export const jump = (path) => {
 }
 
 //GET
-export const fetchGet = (url, params, time) => {
+export const fetchGet = (url, params, headers = {}, timeout = 5000) => {
     const netPromise = new Promise((resolve, reject)=> {
         fetch(url + objToUrlParams(params), {
             method: 'GET',
@@ -34,6 +34,7 @@ export const fetchGet = (url, params, time) => {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
+                ...headers,
             }
         }).then((response) => {
             return response.json()
@@ -47,12 +48,12 @@ export const fetchGet = (url, params, time) => {
             reject(e, '请求失败')
         })
     })
-    const timeoutPromise = delay(time ? time : 5000, null, new Error('请求超时'))
+    const timeoutPromise = delay(timeout, null, new Error('请求超时'))
     return Promise.race([netPromise, timeoutPromise])
 }
 
 //POST
-export const fetchPost = (url, params, time) => {
+export const fetchPost = (url, params, headers = {}, timeout = 5000) => {
     const netPromise = new Promise((resolve, reject)=> {
         fetch(url, {
             method: 'POST',
@@ -60,6 +61,7 @@ export const fetchPost = (url, params, time) => {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
+                ...headers,
             },
             body: JSON.stringify(params)
         }).then((response) => {
@@ -74,7 +76,7 @@ export const fetchPost = (url, params, time) => {
             reject(e, '请求失败')
         })
     })
-    const timeoutPromise = delay(time ? time : 5000, null, new Error('请求超时'))
+    const timeoutPromise = delay(timeout, null, new Error('请求超时'))
     return Promise.race([netPromise, timeoutPromise])
 }
 

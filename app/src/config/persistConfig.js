@@ -3,7 +3,7 @@ import createElectronStorage from "redux-persist-electron-storage"
 
 export default {
     key: 'root',
-    whitelist: ['user'],
+    whitelist: ['user', 'dataSource'],
     transforms: [immutableTransform()],
     storage: createElectronStorage({
         electronStoreOpts: {
