@@ -1,6 +1,7 @@
 import { createStore, applyMiddleware, compose } from 'redux'
 import { createLogger } from 'redux-logger'
 import createSagaMiddleware from 'redux-saga'
+import reduxReset from 'redux-reset'
 import thunkMiddleware from 'redux-thunk'
 import { persistReducer, persistStore } from 'redux-persist'
 import persistConfig from '../config/persistConfig'
@@ -33,6 +34,7 @@ export default (rootReducer, rootSaga, onRehydrate) => {
 
     // 合并中间件
     enhancers.push(applyMiddleware(...middleware))
+    enhancers.push(reduxReset())
 
     // persist
     const persistedReducer = persistReducer(persistConfig, rootReducer)

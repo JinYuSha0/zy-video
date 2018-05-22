@@ -39,13 +39,21 @@ export function* changeKey({ payload }) {
     }
 }
 
-export function* getVideo ({ payload: { active = false, params = getParams('video') } }) {
+export function* getVideo ({ payload: { active = false, add = false, params = getParams('video') } }) {
     if(!!active || needUpdate()) {
         try {
-            yield put(cChangeDsLoading(true))
+            if(!add) {
+                yield put(cChangeDsLoading(true))
+            } else {
+                params.page += 1
+            }
             const result = yield call(sGetVideo, {...params})
             if(result.status === 'success') {
-                const { list, total } = result
+                let { list, total } = result
+                if(add) {
+                    const { dataSource } = store.getState()
+                    list = dataSource.getIn(['video', 'list']).concat(list)
+                }
                 yield put(cGetVideoSuccess({ params, list, total }))
             }
         } catch (e) {

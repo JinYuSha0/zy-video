@@ -15,6 +15,11 @@ export async function sLogin(params) {
     return result.data
 }
 
+export async function sGetCurrentUser() {
+    const result = await fetchPost(URL + 'currentUser', null, getHeaders())
+    return result.data
+}
+
 export async function sGetVideo(params) {
     const result = await fetchPost(URL + 'findVideoList', params, getHeaders())
     return result.data

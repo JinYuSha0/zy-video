@@ -59,7 +59,7 @@ class Header extends Component {
                     <div className="barWrapper">
                         <div className="user">
                             <span className="avatar"></span>
-                            <p className="userName" onClick={this.onLoginClick}>{user.get('isLogin') ? user.getIn(['userInfo', 'nickName']) : '登录'}</p>
+                            <p className="userName" onClick={this.onLoginClick}>{user.get('isLogin') ? user.getIn(['userInfo', 'nickName']) || '未知' : '登录'}</p>
                         </div>
 
                         <span className="icon settings" onClick={this.onSettingClick}/>

@@ -2,10 +2,11 @@ import React from 'react'
 import  { put, call } from 'redux-saga/effects'
 import { store, persistor } from '../../index'
 import { ipcRenderer } from "electron"
-import { sLogin } from "../../service"
+import { sLogin, sGetCurrentUser } from "../../service"
 import { Modal, Input, message } from 'antd'
 import crypto from 'crypto'
-import { cLoginSuccess, cLogoutSuccess, cOpenLockSuccess, cCloseLockSuccess } from '../../redux/reducers/user'
+import { cGetVideo } from '../../redux/reducers/dataSource'
+import { cLoginSuccess, cLogoutSuccess, cOpenLockSuccess, cCloseLockSuccess, cGetCurrentUserSuccess } from '../../redux/reducers/user'
 
 const confirm = Modal.confirm
 
@@ -16,6 +17,7 @@ export function* login ({ payload }) {
         if(result.status === 'success') {
             ipcRenderer.send('close-window', windowName)
             yield put(cLoginSuccess(result.data))
+            yield put(cGetVideo({active: true}))
         } else {
             ipcRenderer.send('return-message', windowName, channel, result.message)
         }
@@ -25,8 +27,19 @@ export function* login ({ payload }) {
 }
 
 export function* logout() {
-    persistor.purge()
+    yield store.dispatch({type: 'RESET'})
     yield put(cLogoutSuccess())
+}
+
+export function* getCurrentUser() {
+    try {
+        const result = yield call(sGetCurrentUser)
+        if(result.status === 'success') {
+            yield put(cGetCurrentUserSuccess({...result.userInfo}))
+        }
+    } catch (e) {
+
+    }
 }
 
 export function* openLock () {
