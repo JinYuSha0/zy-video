@@ -38,7 +38,7 @@ export default class videoList extends Component {
             <Row gutter={16}>
                 {
                     list.map(v => (
-                        <Col className={'zy-card'} span={6} key={v.id} style={{ height: '2.7rem' }}>
+                        <Col className={'zy-card'} lg={6} xxl={4} key={v.id} style={{ height: '2.7rem' }}>
                             <Card
                                 hoverable={true}
                                 cover={<img alt={v.title} src={v.coverURL} style={{ height: '1.4rem' }}/>}

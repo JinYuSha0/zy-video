@@ -75,7 +75,7 @@ class PageIndex extends Component {
             ref={card => this.card = card}
             loading={dataSource.get('loading')}
             style={{ height: '100%' }}
-            bodyStyle={{ position: 'absolute', top: 55, bottom: 0, overflowY: 'scroll', overflowX: 'hidden', width: '100%' }}
+            bodyStyle={{ position: 'absolute', top: 55, bottom: 0, overflowY: 'scroll', overflowX: 'hidden', width: '100%', backgroundColor: '#ECECEC' }}
             activeTabKey={activeKey}
             tabList={tabList}
             onTabChange={this.onTabChange}
