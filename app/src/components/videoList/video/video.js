@@ -50,9 +50,9 @@ export const getVideoStatusTag = (status) => {
 
 class VideoItem extends Component {
     render() {
-        const { v }= this.props
+        const { v, style }= this.props
         return (
-            <Col className={'zy-card'} lg={6} xxl={4}>
+            <Col className={'zy-card'} style={style} lg={6} xxl={4}>
                 <Card
                     hoverable={true}
                     cover={<img alt={v.title} src={v.coverURL} />}
@@ -88,18 +88,14 @@ export default class videoList extends Component {
         const {list} = this.props,
             v = list.get(columnIndex + rowIndex*4)
 
-        console.log(style)
         return (
-            <div style={style}>
-                <VideoItem key={v.id}  v={v}/>
-            </div>
+            <VideoItem key={v.id} style={style}  v={v}/>
         )
     }
 
     onScroll = ({ clientHeight, scrollHeight, scrollTop }) => {
-        if(scrollHeight - clientHeight - scrollTop < 0) {
-            console.log('加载')
-            //this.props.getVideo({ active: true, add: true })
+        if(scrollHeight - clientHeight - scrollTop <= 0) {
+            this.props.getVideo({ active: true, add: true })
         }
     }
 
