@@ -6,6 +6,7 @@ import { sLogin, sGetCurrentUser } from "../../service"
 import { Modal, Input, message } from 'antd'
 import crypto from 'crypto'
 import { cGetVideo } from '../../redux/reducers/dataSource'
+import { cResetStore } from '../../redux/reducers/window'
 import { cLoginSuccess, cLogoutSuccess, cOpenLockSuccess, cCloseLockSuccess, cGetCurrentUserSuccess } from '../../redux/reducers/user'
 
 const confirm = Modal.confirm
@@ -27,7 +28,8 @@ export function* login ({ payload }) {
 }
 
 export function* logout() {
-    yield store.dispatch({type: 'RESET'})
+    yield persistor.purge()
+    yield put(cResetStore())
     yield put(cLogoutSuccess())
 }
 

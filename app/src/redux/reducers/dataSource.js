@@ -19,7 +19,7 @@ export const INITIAL_STATE = Immutable.fromJS({
         timestamp: null,
         params: {
             page: 1,
-            size: 12,
+            size: 36,
             cateId: null,
             title: null,
         }

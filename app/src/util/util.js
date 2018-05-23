@@ -103,3 +103,9 @@ export const isParent =  (obj, parentObj) =>{
     }
     return false
 }
+
+//rem转px
+export const rem2px = (rem) => {
+    const clientWidth = parseFloat(document.documentElement.clientWidth)
+    return parseFloat(clientWidth / 10 * rem)
+}
