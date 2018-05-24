@@ -9,6 +9,9 @@ import { windowMax, windowMin, resetStore } from './sagas/window'
 import { CHANGE_KEY, GET_VIDEO, GET_LIVE } from '../redux/reducers/dataSource'
 import { changeKey, getLive, getVideo } from './sagas/dataSource'
 
+import { PLAY_VIDEO, PLAT_MULTIPLE_VIDEO } from '../redux/reducers/playlist'
+import { playVideo, playMultipleVideo } from './sagas/playlist'
+
 export default function* root() {
     yield all([
         takeLatest(LOGIN, login),
@@ -24,5 +27,9 @@ export default function* root() {
         takeEvery(CHANGE_KEY, changeKey),
         takeLatest(GET_VIDEO, getVideo),
         takeLatest(GET_LIVE, getLive),
+
+        takeLatest(PLAY_VIDEO, playVideo),
+        takeLatest(PLAT_MULTIPLE_VIDEO, playMultipleVideo),
+
     ])
 }

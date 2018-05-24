@@ -9,7 +9,7 @@ import Player from '../../components/player/player'
 class PagePlayer extends Component {
     render() {
         return (
-            <div className="pagePlayer">
+            <div className={'page-player'}>
                 <Player/>
             </div>
         )

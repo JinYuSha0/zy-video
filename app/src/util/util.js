@@ -109,3 +109,54 @@ export const rem2px = (rem) => {
     const clientWidth = parseFloat(document.documentElement.clientWidth)
     return parseFloat(clientWidth / 10 * rem)
 }
+
+//浅拷贝
+export const simpleClone = (initObj) => {
+    let obj = {}
+    for (let i in initObj) {
+        obj[i] = initObj[i]
+    }
+    return obj
+}
+
+//递归获取父节点指定属性
+export const recursionGetAttr = (elem, attr) => {
+    return new Promise((resolve, reject) => {
+        const recursion = (elem, attr) => {
+            if(!elem.getAttribute(attr)) {
+                if(elem.parentNode.getAttribute) {
+                    recursion(elem.parentNode, attr)
+                } else {
+                    reject('未找到属性')
+                }
+            } else {
+                resolve({attr: elem.getAttribute(attr), elem})
+            }
+        }
+
+        const recursionArr = (_elem, attrArray) => {
+            let attr = [], elem = null
+            attrArray.map(v => {
+                if(_elem.getAttribute(v)) {
+                    elem = _elem
+                    attr.push(_elem.getAttribute(v))
+                }
+            })
+            if(attr.length > 0) {
+                resolve({attr, elem})
+            } else {
+                if(_elem.parentNode.getAttribute) {
+                    recursionArr(_elem.parentNode, attrArray)
+                } else {
+                    reject('未找到属性')
+                }
+            }
+        }
+
+        if(typeof attr === 'string') {
+            recursion(elem, attr)
+        } else {
+            recursionArr(elem, attr)
+        }
+    })
+}

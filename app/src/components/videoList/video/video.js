@@ -5,9 +5,9 @@ import { Card, Icon, Tag, Col, Row } from 'antd'
 import { AutoSizer, Grid } from 'react-virtualized'
 import { rem2px } from "../../../util/util"
 import debounce from 'lodash.debounce'
+import { message } from 'antd'
 
 const { Meta } = Card
-
 
 export const getColumnCountAndRowHeight = (width) => {
     if(width < 1600) {
@@ -52,13 +52,13 @@ class VideoItem extends Component {
     render() {
         const { v, style }= this.props
         return (
-            <Col className={'zy-card'} style={style} lg={6} xxl={4}>
+            <Col data-video-id={v.id} data-video-encrypted={!!v.hasPass} className={'zy-card'} style={style} lg={6} xxl={4}>
                 <Card
                     hoverable={true}
                     cover={<img alt={v.title} src={v.coverURL} />}
                     actions={[
-                        <Icon type="caret-right"/>,
-                        <Icon type="plus"/>,
+                        <Icon data-action={'play-video'} type="caret-right"/>,
+                        <Icon data-action={'add-video'} type="plus"/>,
                         v.hasPass ? <Icon type="lock" /> : <Icon type="unlock" />
                     ]}
                 >
@@ -89,12 +89,17 @@ export default class videoList extends Component {
             v = list.get(columnIndex + rowIndex*4)
 
         return (
-            <VideoItem key={v.id} style={style}  v={v}/>
+            <VideoItem key={v.id + key} style={style}  v={v}/>
         )
     }
 
     onScroll = ({ clientHeight, scrollHeight, scrollTop }) => {
-        if(scrollHeight - clientHeight - scrollTop <= 0) {
+        if(scrollHeight - clientHeight - scrollTop <= 100) {
+            if(this.props.dataSource.getIn(['video', 'isAll'])) {
+                message.info('已无更多视频')
+                return
+            }
+
             this.props.getVideo({ active: true, add: true })
         }
     }
@@ -102,7 +107,7 @@ export default class videoList extends Component {
     render() {
         const {list} = this.props
         return (
-            <Row gutter={16} style={{ width: '100%', height: '100%'}}>
+            <Row gutter={16} style={{ width: '100%', height: '100%' }}>
                 <AutoSizer>
                     {({ height, width }) => {
                         const { columnCount, rowHeight } = getColumnCountAndRowHeight(width)
@@ -112,11 +117,13 @@ export default class videoList extends Component {
                                 height={height}
                                 width={width}
                                 rowHeight={rowHeight}
-                                columnWidth={width / columnCount}
+                                columnWidth={(width - 12) / columnCount}
                                 columnCount={columnCount}
                                 rowCount={list.size / columnCount}
                                 cellRenderer={this.cellRenderer}
-                                style={{ overflowX: 'hidden', overflowY: 'auto'}}
+                                style={{ overflowX: 'hidden', overflowY: 'auto', padding: '8px 0' }}
+                                //宽度减少12px 留给滑动条
+                                containerStyle={{ width: width - 12 }}
                             />
                         )
                     }}

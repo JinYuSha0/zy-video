@@ -22,7 +22,8 @@ export const INITIAL_STATE = Immutable.fromJS({
             size: 12,
             cateId: null,
             title: null,
-        }
+        },
+        isAll: false,
     },
     live: {
         list: [],
@@ -42,12 +43,13 @@ export default handleActions({
     [CHANGE_DS_LOADING]: (state, {payload}) => (
         state.set('loading', payload)
     ),
-    [GET_VIDEO_SUCCESS]: (state, { payload: { params, list, total } }) => (
+    [GET_VIDEO_SUCCESS]: (state, { payload: { params, list, total, isAll } }) => (
         state.set('loading', false)
             .setIn(['video', 'params'], state.getIn(['video','params']).merge(params))
             .setIn(['video', 'list'], List(list))
             .setIn(['video', 'total'], total)
             .setIn(['video', 'timestamp'], new Date().getTime())
+            .setIn(['video', 'isAll'], isAll)
     ),
     [GET_LIVE_SUCCESS]: (state, { payload: { params, list } }) => (
         state.set('loading', false)

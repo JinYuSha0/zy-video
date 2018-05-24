@@ -1,6 +1,8 @@
 import './player.less'
 
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 
 //回播视频hls加密
 const VIDEO_OPTIONS = {
@@ -16,7 +18,8 @@ const VIDEO_OPTIONS = {
         volumePanel: {
             inline: false
         }
-    }
+    },
+    type: 'application/x-mpegURL'
 }
 
 //直播视频flv
@@ -36,10 +39,11 @@ const LIVE_OPTIONS = {
         volumePanel: {
             inline: false
         }
-    }
+    },
+    type: 'video/x-flv'
 }
 
-export default class Player extends Component {
+class Player extends Component {
     componentDidMount() {
         //直播
         const player = this.player = videojs('zy-player', LIVE_OPTIONS)
@@ -72,3 +76,9 @@ export default class Player extends Component {
         )
     }
 }
+
+export default connect(
+    ({ playlist }) => ({ playlist }),
+    (dispatch) => bindActionCreators({
+    }, dispatch)
+)(Player)

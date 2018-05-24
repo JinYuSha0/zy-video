@@ -1,11 +1,14 @@
 import './index.less'
 
+import Immutable, { Map } from 'immutable'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { Card } from 'antd'
+import { Card, message } from 'antd'
+import { recursionGetAttr } from '../../util/util'
 import { cGetCurrentUser } from '../../redux/reducers/user'
 import { cChangeKey, cGetVideo, cGetLive } from '../../redux/reducers/dataSource'
+import { cAddPlay, cRemovePlay, cSetPlayList, cPlayVideo, cPlayMultipleVideo } from '../../redux/reducers/playlist'
 
 import PageVersion from '../version/version'
 import VideoList from '../../components/videoList/video/video'
@@ -17,6 +20,46 @@ class Content extends Component {
 
     onTabChange = (key) => {
         this.props.changeKey(key)
+    }
+
+    onClick = (e) => {
+        //统一事件代理
+        const action = e.target.getAttribute('data-action')
+        if(!!action) {
+            switch (action) {
+                case 'play-video':
+                    this.playVideo(e)
+                    break
+                case 'add-video':
+                    this.addVideo(e)
+                    break
+            }
+        }
+    }
+
+    playVideo = async (e) => {
+        try {
+            const { attr } = await recursionGetAttr(e.target, ['data-video-id', 'data-video-encrypted']),
+                [id, encrypted] = attr,
+                { playVideo } = this.props
+
+            if(JSON.parse(encrypted)) {
+                //todo 输入密码
+            } else {
+                playVideo({ id, pass: null})
+            }
+        } catch (e) {
+            message.error(e.message)
+        }
+    }
+
+    addVideo = async (e) => {
+        try {
+            const { attr } = await recursionGetAttr(e.target, ['data-video-id'])
+            console.log('添加视频', attr)
+        } catch (e) {
+            message.error(e.message)
+        }
     }
 
     render() {
@@ -31,21 +74,24 @@ class Content extends Component {
             }
         ]
         const contentList = {
-            video: <VideoList list={dataSource.getIn(['video', 'list'])} getVideo={getVideo}/>,
+            video: <VideoList dataSource={dataSource} list={dataSource.getIn(['video', 'list'])} getVideo={getVideo}/>,
             live: <p>list content</p>
         }
         const activeKey = dataSource.get('activeKey')
         return (
-            <Card
-                loading={dataSource.get('loading')}
-                style={{ height: '100%' }}
-                bodyStyle={{ position: 'absolute', top: 55, bottom: 0, overflow: 'hidden', width: '100%', backgroundColor: '#ECECEC' }}
-                activeTabKey={activeKey}
-                tabList={tabList}
-                onTabChange={this.onTabChange}
-            >
-                {contentList[activeKey]}
-            </Card>
+            <div className={'page-index'}>
+                <Card
+                    onClick={this.onClick}
+                    loading={dataSource.get('loading')}
+                    style={{ height: '100%' }}
+                    bodyStyle={{ position: 'absolute', top: 55, bottom: 0, overflow: 'hidden', width: '100%', backgroundColor: '#ECECEC', padding: '0' }}
+                    activeTabKey={activeKey}
+                    tabList={tabList}
+                    onTabChange={this.onTabChange}
+                >
+                    {contentList[activeKey]}
+                </Card>
+            </div>
         )
     }
 }
@@ -61,14 +107,9 @@ class PageIndex extends Component {
     }
 
     render() {
-        const { user, dataSource, getVideo, changeKey } = this.props
+        const { user } = this.props
         return user.get('isLogin') ?
-            <Content
-                user={user}
-                dataSource={dataSource}
-                getVideo={getVideo}
-                changeKey={changeKey}
-            />
+            <Content {...this.props}/>
             :
             <PageVersion/>
     }
@@ -81,5 +122,10 @@ export default connect(
         getVideo: cGetVideo,
         getLive: cGetLive,
         getCurrentUser: cGetCurrentUser,
+        addPlay: cAddPlay,
+        removePlay: cRemovePlay,
+        setPlayList: cSetPlayList,
+        playVideo: cPlayVideo,
+        playMultipleVideo: cPlayMultipleVideo,
     }, dispatch)
 )(PageIndex)
