@@ -37,7 +37,7 @@ export default class PageVersion extends Component {
                             <div className={'new-version-wrapper-info'}>
                                 {
                                     versionInfo.map((v, k) => (
-                                        <h2>{(k+1) + '.' + v}</h2>
+                                        <h2 key={k}>{(k+1) + '.' + v}</h2>
                                     ))
                                 }
                             </div>

@@ -43,14 +43,16 @@ export default handleActions({
     [CHANGE_DS_LOADING]: (state, {payload}) => (
         state.set('loading', payload)
     ),
-    [GET_VIDEO_SUCCESS]: (state, { payload: { params, list, total, isAll } }) => (
-        state.set('loading', false)
+    [GET_VIDEO_SUCCESS]: (state, { payload: { params, list, total, isAll } }) => {
+        console.log(111, params)
+
+        return state.set('loading', false)
             .setIn(['video', 'params'], state.getIn(['video','params']).merge(params))
             .setIn(['video', 'list'], List(list))
             .setIn(['video', 'total'], total)
             .setIn(['video', 'timestamp'], new Date().getTime())
             .setIn(['video', 'isAll'], isAll)
-    ),
+    },
     [GET_LIVE_SUCCESS]: (state, { payload: { params, list } }) => (
         state.set('loading', false)
             .setIn(['live', 'params'], state.getIn(['live','params']).merge(params))
@@ -62,6 +64,6 @@ export default handleActions({
 export const cChangeKey = createAction(CHANGE_KEY, key => key)
 export const cChangeDsLoading = createAction(CHANGE_DS_LOADING, status => status)
 export const cGetVideo = createAction(GET_VIDEO, params => params)
-export const cGetVideoSuccess = createAction(GET_VIDEO_SUCCESS)
+export const cGetVideoSuccess = createAction(GET_VIDEO_SUCCESS, data => data)
 export const cGetLive = createAction(GET_LIVE, params => params)
 export const cGetLiveSuccess = createAction(GET_LIVE_SUCCESS)

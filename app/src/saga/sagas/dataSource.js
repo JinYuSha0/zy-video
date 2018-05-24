@@ -20,13 +20,19 @@ function needUpdate() {
     }
 }
 
-function getParams(key) {
+function getInitParams(key) {
     const params = dataSourceInitState.getIn([key, 'params']).toJS()
     return params
 }
 
+function getParams(key) {
+    const { dataSource } = store.getState(),
+        params = dataSource.getIn([key, 'params']).toJS()
+    return params
+}
+
 export function* changeKey({ payload }) {
-    const params = getParams(payload)
+    const params = getInitParams(payload)
 
     switch (payload) {
         case 'video':
@@ -48,6 +54,7 @@ export function* getVideo ({ payload: { active = false, add = false, params = ge
             } else {
                 params.page += 1
             }
+
             const result = yield call(sGetVideoList, {...params})
             if(result.status === 'success') {
                 let { list, total } = result,
