@@ -36,7 +36,7 @@ export const electronStore = createElectronStorage({
 
 export default {
     key: 'root',
-    whitelist: ['user', 'dataSource'],
+    whitelist: ['user', 'dataSource', 'playlist'],
     transforms: [immutableTransform()],
     storage: electronStore
 }

@@ -12,12 +12,12 @@ export default class PageVersion extends Component {
 
 
     async componentWillMount() {
-        const data = await sNeedToUpdate(AppInfo.version)
+        /*const data = await sNeedToUpdate(AppInfo.version)
 
         if(data.status === 'success' && data.needUpdate) {
             delete data.status
             this.setState({ ...data })
-        }
+        }*/
     }
 
     render() {

@@ -12,6 +12,7 @@ import { cAddPlay, cRemovePlay, cSetPlayList, cPlayVideo, cPlayMultipleVideo } f
 
 import PageVersion from '../version/version'
 import VideoList from '../../components/videoList/video/video'
+import LeftBar from '../../components/leftBar/leftBar'
 
 class Content extends Component {
     constructor(props) {
@@ -63,7 +64,7 @@ class Content extends Component {
     }
 
     render() {
-        const { dataSource, getVideo } = this.props
+        const { dataSource, getVideo, leftBar } = this.props
         const tabList = [
             {
                 key: 'video',
@@ -84,13 +85,15 @@ class Content extends Component {
                     onClick={this.onClick}
                     loading={dataSource.get('loading')}
                     style={{ height: '100%' }}
-                    bodyStyle={{ position: 'absolute', top: 55, bottom: 0, overflow: 'hidden', width: '100%', backgroundColor: '#ECECEC', padding: '0' }}
+                    bodyStyle={{ position: 'absolute', top: 55, bottom: 0, overflow: 'hidden', width: 'calc(100% - ' + leftBar.get('width') + ')', backgroundColor: '#ECECEC', padding: '0', marginLeft: leftBar.get('marginLeft') }}
                     activeTabKey={activeKey}
                     tabList={tabList}
                     onTabChange={this.onTabChange}
                 >
                     {contentList[activeKey]}
                 </Card>
+
+                <LeftBar/>
             </div>
         )
     }
@@ -116,7 +119,7 @@ class PageIndex extends Component {
 }
 
 export default connect(
-    ({ user, dataSource }) => ({ user, dataSource }),
+    ({ user, dataSource, leftBar }) => ({ user, dataSource, leftBar }),
     (dispatch) => bindActionCreators({
         changeKey: cChangeKey,
         getVideo: cGetVideo,

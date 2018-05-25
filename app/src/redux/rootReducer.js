@@ -4,6 +4,7 @@ import user from './reducers/user'
 import window from './reducers/window'
 import dataSource from './reducers/dataSource'
 import playlist from './reducers/playlist'
+import leftBar from './reducers/leftBar';
 
 export default combineReducers({
     router: routerReducer,
@@ -11,4 +12,5 @@ export default combineReducers({
     window,
     dataSource,
     playlist,
+    leftBar,
 })

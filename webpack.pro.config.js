@@ -11,7 +11,10 @@ const config = require('./package')
 fs.writeFileSync('./app/package.json', JSON.stringify({
     "name": config.name,
     "version" : config.version,
-    "main": "main.js"
+    "main": "main.js",
+    "productName": "zy-video",
+    "author": "sjy",
+    "description": "look video"
 }))
 
 module.exports = {
