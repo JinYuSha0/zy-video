@@ -164,11 +164,11 @@ export const recursionGetAttr = (elem, attr) => {
 }
 
 //全局模态框获取输入框输入
-export const getInput = (title = '', placeholder = '', todo) => {
+export const getInput = (title = '', placeholder = '', type = '', todo) => {
     let inputTmp = ''
     Modal.confirm({
         title,
-        content: <Input placeholder={placeholder} onChange={e => { inputTmp = e.target.value }}/>,
+        content: <Input placeholder={placeholder} onChange={e => { inputTmp = e.target.value }} type={type}/>,
         okText: '确认',
         cancelText: '取消',
         destroyOnClose: true,

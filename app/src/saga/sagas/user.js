@@ -8,6 +8,7 @@ import crypto from 'crypto'
 import { cGetVideo } from '../../redux/reducers/dataSource'
 import { cResetStore } from '../../redux/reducers/window'
 import { cLoginSuccess, cLogoutSuccess, cOpenLockSuccess, cCloseLockSuccess, cGetCurrentUserSuccess } from '../../redux/reducers/user'
+import { getInput } from '../../util/util'
 
 const confirm = Modal.confirm
 
@@ -45,27 +46,12 @@ export function* getCurrentUser() {
 }
 
 export function* openLock () {
-    confirm({
-        title: '是否要开启操作锁?',
-        content: <Input onChange={e => window.tmp = e.target.value} placeholder="请输入操作密码" type="password"/>,
-        okText: '确定',
-        cancelText: '取消',
-        onOk: () => {
-            return new Promise((resolve, reject) => {
-                if(!!window.tmp && window.tmp.length > 0) {
-                    const md5 = crypto.createHash('md5')
-                    md5.update(window.tmp)
-                    window.tmp = null
-                    const str = md5.digest('hex')
-                    store.dispatch(cOpenLockSuccess(str))
-                    message.success('开启操作锁成功.')
-                    resolve()
-                } else {
-                    message.error('操作密码不能为空!')
-                    reject()
-                }
-            })
-        }
+    getInput('是否要开启操作锁?', '请输入操作密码', 'password', (pass) => {
+        const md5 = crypto.createHash('md5')
+        md5.update(pass)
+        const str = md5.digest('hex')
+        store.dispatch(cOpenLockSuccess(str))
+        message.success('开启操作锁成功.')
     })
 }
 

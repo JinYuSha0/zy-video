@@ -46,7 +46,7 @@ class Content extends Component {
                 { playVideo } = this.props
 
             if(JSON.parse(encrypted)) {
-                getInput('请输入视频密码', '视频密码', (pass) => {
+                getInput('请输入视频密码', '视频密码', 'password', (pass) => {
                     playVideo({ id, title, pass})
                 })
             } else {
@@ -65,7 +65,7 @@ class Content extends Component {
                 { addPlay } = this.props
             let item = { id: attr[0], title }
             if(hasEncrypt) {
-                getInput('请输入视频密码', '视频密码', (pass) => {
+                getInput('请输入视频密码', '视频密码', 'password', (pass) => {
                     item.pass = pass
                     addPlay(item)
                 })
