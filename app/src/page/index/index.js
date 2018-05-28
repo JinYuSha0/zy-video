@@ -4,8 +4,8 @@ import Immutable, { Map } from 'immutable'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { Card, message } from 'antd'
-import { recursionGetAttr } from '../../util/util'
+import { Card, message, Spin } from 'antd'
+import { recursionGetAttr, getInput } from '../../util/util'
 import { cGetCurrentUser } from '../../redux/reducers/user'
 import { cChangeKey, cGetVideo, cGetLive } from '../../redux/reducers/dataSource'
 import { cAddPlay, cRemovePlay, cSetPlayList, cPlayVideo, cPlayMultipleVideo } from '../../redux/reducers/playlist'
@@ -40,14 +40,17 @@ class Content extends Component {
 
     playVideo = async (e) => {
         try {
-            const { attr } = await recursionGetAttr(e.target, ['data-video-id', 'data-video-encrypted']),
+            const { attr, elem } = await recursionGetAttr(e.target, ['data-video-id', 'data-video-encrypted']),
+                title = elem.children[0].querySelector('.ant-card-meta-title').innerHTML,
                 [id, encrypted] = attr,
                 { playVideo } = this.props
 
             if(JSON.parse(encrypted)) {
-                //todo 输入密码
+                getInput('请输入视频密码', '视频密码', (pass) => {
+                    playVideo({ id, title, pass})
+                })
             } else {
-                playVideo({ id, pass: null})
+                playVideo({ id, title })
             }
         } catch (e) {
             message.error(e.message)
@@ -56,16 +59,27 @@ class Content extends Component {
 
     addVideo = async (e) => {
         try {
-            const { attr } = await recursionGetAttr(e.target, ['data-video-id'])
-            console.log('添加视频', attr)
+            const { attr, elem } = await recursionGetAttr(e.target, ['data-video-id', 'data-video-encrypted']),
+                title = elem.children[0].querySelector('.ant-card-meta-title').innerHTML,
+                hasEncrypt = JSON.parse(attr[1]),
+                { addPlay } = this.props
+            let item = { id: attr[0], title }
+            if(hasEncrypt) {
+                getInput('请输入视频密码', '视频密码', (pass) => {
+                    item.pass = pass
+                    addPlay(item)
+                })
+            } else {
+                addPlay(item)
+            }
         } catch (e) {
             message.error(e.message)
         }
     }
 
     render() {
-        const { dataSource, getVideo, leftBar } = this.props
-        const tabList = [
+        const { dataSource, getVideo, leftBar } = this.props,
+            tabList = [
             {
                 key: 'video',
                 tab: '视频'
@@ -73,12 +87,12 @@ class Content extends Component {
                 key: 'live',
                 tab: '直播'
             }
-        ]
-        const contentList = {
+        ],
+            contentList = {
             video: <VideoList dataSource={dataSource} list={dataSource.getIn(['video', 'list'])} getVideo={getVideo}/>,
             live: <p>list content</p>
-        }
-        const activeKey = dataSource.get('activeKey')
+        },
+            activeKey = dataSource.get('activeKey')
         return (
             <div className={'page-index'}>
                 <Card
@@ -91,6 +105,14 @@ class Content extends Component {
                     onTabChange={this.onTabChange}
                 >
                     {contentList[activeKey]}
+
+                    {
+                        dataSource.get('addLoading') && (
+                            <div className={'loading-container'}>
+                                <Spin/>
+                            </div>
+                        )
+                    }
                 </Card>
 
                 <LeftBar/>

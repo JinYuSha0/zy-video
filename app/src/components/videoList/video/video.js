@@ -81,7 +81,7 @@ class VideoItem extends Component {
 export default class videoList extends Component {
     constructor(props) {
         super(props)
-        this.onScroll = debounce(this.onScroll, 300)
+        this.onScroll = debounce(this.onScroll, 200)
     }
 
     cellRenderer = ({ columnIndex, rowIndex, key, style }) => {
@@ -95,6 +95,7 @@ export default class videoList extends Component {
 
     onScroll = ({ clientHeight, scrollHeight, scrollTop }) => {
         if(scrollHeight - clientHeight - scrollTop <= 100) {
+            //fix 全部加载后向上滑动也会触发
             if(this.props.dataSource.getIn(['video', 'isAll'])) {
                 message.info('已无更多视频')
                 return

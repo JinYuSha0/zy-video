@@ -1,7 +1,7 @@
 import  { put, call } from 'redux-saga/effects'
 import { store } from '../../index'
 import { cChangePlayType } from '../../redux/reducers/playlist'
-import { INITIAL_STATE as dataSourceInitState, cChangeDsLoading, cGetVideo, cGetLive, cGetVideoSuccess, cGetLiveSuccess } from '../../redux/reducers/dataSource'
+import { INITIAL_STATE as dataSourceInitState, cChangeDsLoading, cGetVideo, cGetLive, cGetVideoSuccess, cGetLiveSuccess, cChangeDsAddLoading } from '../../redux/reducers/dataSource'
 import { sGetVideoList, sGetLiveList } from '../../service/index'
 import { message } from 'antd'
 
@@ -52,6 +52,7 @@ export function* getVideo ({ payload: { active = false, add = false, params = ge
             if(!add) {
                 yield put(cChangeDsLoading(true))
             } else {
+                yield put(cChangeDsAddLoading(true))
                 params.page += 1
             }
 
@@ -66,6 +67,7 @@ export function* getVideo ({ payload: { active = false, add = false, params = ge
 
                     isAll = list.length < size
                     list = dataSource.getIn(['video', 'list']).concat(list)
+                    yield put(cChangeDsAddLoading(false))
                 }
                 yield put(cGetVideoSuccess({ params, list, total, isAll}))
             }

@@ -1,4 +1,6 @@
+import React from 'react'
 import { store, history } from '../index'
+import { Modal, Input, message } from 'antd'
 
 //延时
 export const delay = (ms, todo, err) => {
@@ -158,5 +160,31 @@ export const recursionGetAttr = (elem, attr) => {
         } else {
             recursionArr(elem, attr)
         }
+    })
+}
+
+//全局模态框获取输入框输入
+export const getInput = (title = '', placeholder = '', todo) => {
+    let inputTmp = ''
+    Modal.confirm({
+        title,
+        content: <Input placeholder={placeholder} onChange={e => { inputTmp = e.target.value }}/>,
+        okText: '确认',
+        cancelText: '取消',
+        destroyOnClose: true,
+        onOk: () => {
+            return new Promise((resolve, reject) => {
+                if(inputTmp.length > 0) {
+                    if(!!todo) todo(inputTmp)
+                    resolve()
+                } else {
+                    message.error('请输入内容!')
+                    reject()
+                }
+            })
+        },
+        onCancel: () => {
+
+        },
     })
 }

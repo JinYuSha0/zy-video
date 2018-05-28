@@ -78,3 +78,11 @@ export async function sGetVideoUrl(params) {
     const result = await fetchPost(URL + 'getPullUrl', params, getHeaders())
     return result.data
 }
+
+/***
+ * 获取所有分类
+ */
+export async function sGetAllClassify() {
+    const result = await fetchGet(URL + 'findAllClassify')
+    return result.data
+}

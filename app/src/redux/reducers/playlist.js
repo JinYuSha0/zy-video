@@ -22,6 +22,7 @@ export const INITIAL_STATE = Immutable.fromJS({
 //单个视频数据
 /*const item = {
     id: '',
+    title: '',
     pass: ''
 }*/
 
@@ -34,7 +35,7 @@ export default handleActions({
         state.set('list', state.get('list').push(payload))
     ),
     [REMOVE_PLAY]: (state, {payload}) => (
-        state.set('list', state.get('list').filter(i => i.get('id') === payload))
+        state.set('list', state.get('list').filter((i, k) => k !== payload))
     ),
     [SET_PLAY_LIST]: (state, {payload}) => (
         state.set('list', List(payload))
@@ -48,7 +49,7 @@ export default handleActions({
 }, INITIAL_STATE)
 
 export const cChangePlayType = createAction(CHANGE_PLAY_TYPE, type => type)
-export const cAddPlay = createAction(ADD_PLAY, list => list)
+export const cAddPlay = createAction(ADD_PLAY, item => item)
 export const cRemovePlay = createAction(REMOVE_PLAY, id => id)
 export const cSetPlayList = createAction(SET_PLAY_LIST, list => list)
 export const cPlayVideo = createAction(PLAY_VIDEO, id => id)
