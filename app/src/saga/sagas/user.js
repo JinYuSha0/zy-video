@@ -56,17 +56,17 @@ export function* openLock () {
 }
 
 export function* closeLock () {
+    let inputTmp = ''
     confirm({
         title: '是否要关闭操作锁?若忘记密码重新登陆即可.',
-        content: <Input onChange={e => window.tmp = e.target.value} placeholder="请输入操作密码" type="password"/>,
+        content: <Input onChange={e => inputTmp = e.target.value} placeholder="请输入操作密码" type="password"/>,
         okText: '确定',
         cancelText: '取消',
         onOk: () => {
             return new Promise((resolve, reject) => {
                 const { user } = store.getState()
                 const md5 = crypto.createHash('md5')
-                md5.update(!!window.tmp ? window.tmp : '')
-                window.tmp = null
+                md5.update(inputTmp)
                 const str = md5.digest('hex')
 
                 if(str === null || user.get('lockPass') === str) {
