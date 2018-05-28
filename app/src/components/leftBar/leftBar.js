@@ -5,8 +5,10 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { cOpenLeftBar, cCloseLeftBar } from "../../redux/reducers/leftBar"
 import { cRemovePlay, cSetPlayList } from '../../redux/reducers/playlist'
+import { cGetVideo, cGetLive } from '../../redux/reducers/dataSource'
 import { Icon, Badge, Select, Input, message, Tooltip, List, Button } from 'antd'
 import { sGetAllClassify } from '../../service/index'
+import rootReducer from "../../redux/rootReducer";
 
 const Option = Select.Option
 
@@ -26,7 +28,7 @@ class LeftBar extends Component {
         }
     }
 
-    onClick =() => {
+    onOpenClick =() => {
         const { leftBar, open, close } = this.props
         if(leftBar.get('isOpen')) {
             close()
@@ -35,15 +37,35 @@ class LeftBar extends Component {
         }
     }
 
-    refresh = () => {
-        const { dataSource } = this.props,
+    onRefreshClick = () => {
+        const { dataSource, getLive, getVideo } = this.props,
             activeKey = dataSource.get('activeKey')
         switch (activeKey) {
             case 'live':
+                getLive({ active: true })
                 break
             case 'video':
+                getVideo({ active: true })
                 break
         }
+    }
+
+    onSearchClick = () => {
+        this.props.open()
+        setTimeout(() => {
+            this.search.input.focus()
+        }, 0)
+    }
+
+    onClassifyClick = () => {
+        this.props.open()
+        setTimeout(() => {
+            this.classify.focus()
+        }, 0)
+    }
+
+    onListClick = () => {
+        this.props.open()
     }
 
     render() {
@@ -67,6 +89,7 @@ class LeftBar extends Component {
 
                                         <div className={'body'}>
                                             <Input
+                                                ref={search => this.search = search}
                                                 placeholder={'搜索标题'}
                                                 style={{ width: 180, padding: '0 2px'  }}
                                                 suffix={<Icon type="search" />}
@@ -82,6 +105,7 @@ class LeftBar extends Component {
 
                                         <div className={'body'}>
                                             <Select
+                                                ref={classify => this.classify = classify}
                                                 showSearch
                                                 style={{ width: 180, padding: '0 2px'  }}
                                                 placeholder={'视频分类'}
@@ -134,22 +158,22 @@ class LeftBar extends Component {
                                 </div>
                                 :
                                 <ul className={'side-bar-small'}>
-                                    <li className={'small-item'} onClick={this.refresh}>
+                                    <li className={'small-item'} onClick={this.onRefreshClick}>
                                         <Icon type="reload" style={{ fontSize: 18 }}/>
                                         <span>刷新</span>
                                     </li>
 
-                                    <li className={'small-item'}>
+                                    <li className={'small-item'} onClick={this.onSearchClick}>
                                         <Icon type="search" style={{ fontSize: 18 }}/>
                                         <span>搜索</span>
                                     </li>
 
-                                    <li className={'small-item'}>
+                                    <li className={'small-item'} onClick={this.onClassifyClick}>
                                         <Icon type="switcher" style={{ fontSize: 18 }}/>
                                         <span>分类</span>
                                     </li>
 
-                                    <li className={'small-item'}>
+                                    <li className={'small-item'} onClick={this.onListClick}>
                                         <Badge count={playlist.get('list').size}>
                                             <Icon type="profile" style={{ fontSize: 18 }}/>
                                         </Badge>
@@ -160,7 +184,7 @@ class LeftBar extends Component {
 
                     </div>
 
-                    <a className={'bar-btn'} onClick={this.onClick}></a>
+                    <a className={'bar-btn'} onClick={this.onOpenClick}></a>
                 </div>
             </div>
         )
@@ -174,5 +198,7 @@ export default connect(
         close: cCloseLeftBar,
         removePlay: cRemovePlay,
         setPlayList: cSetPlayList,
+        getVideo: cGetVideo,
+        getLive: cGetLive,
     }, dispatch)
 )(LeftBar)

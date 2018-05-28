@@ -8,6 +8,10 @@ import { message } from 'antd'
 //列表每15分钟刷新一次
 const TIMEOUT = 1000 * 60 * 15
 
+/***
+ * 是否需要更新数据
+ * @returns {boolean}
+ */
 function needUpdate() {
     const { user, dataSource } = store.getState(),
         timestamp = dataSource.getIn(['video', 'timestamp']),
@@ -20,40 +24,58 @@ function needUpdate() {
     }
 }
 
+/***
+ * 获取初始化参数
+ * @param key
+ * @returns {*}
+ */
 function getInitParams(key) {
     const params = dataSourceInitState.getIn([key, 'params']).toJS()
     return params
 }
 
+/***
+ * 获取参数
+ * @param key
+ * @returns {*}
+ */
 function getParams(key) {
     const { dataSource } = store.getState(),
         params = dataSource.getIn([key, 'params']).toJS()
     return params
 }
 
+/***
+ * 切换列表
+ * @param payload
+ */
 export function* changeKey({ payload }) {
     const params = getInitParams(payload)
-
     switch (payload) {
         case 'video':
-            yield put(cChangePlayType({type: 'video'}))
             yield put(cGetVideo({params}))
             break
         case 'live':
-            yield put(cChangePlayType({type: 'video'}))
             yield put(cGetLive({params}))
             break
     }
 }
 
+/***
+ * 获取视频列表
+ * @param active 主动刷新
+ * @param add    页数增加
+ * @param params 请求参数
+ */
 export function* getVideo ({ payload: { active = false, add = false, params = getParams('video') } }) {
     if(!!active || needUpdate()) {
         try {
-            if(!add) {
-                yield put(cChangeDsLoading(true))
-            } else {
+            if(add === true) {
                 yield put(cChangeDsAddLoading(true))
                 params.page += 1
+            } else if (active === true) {
+                yield put(cChangeDsLoading(true))
+                params = getInitParams('video')
             }
 
             const result = yield call(sGetVideoList, {...params})
@@ -77,6 +99,11 @@ export function* getVideo ({ payload: { active = false, add = false, params = ge
     }
 }
 
+/***
+ * 获取直播列表
+ * @param active
+ * @param params
+ */
 export function* getLive({ payload: { active = false, params = getParams('live') } }) {
     if(!!active || needUpdate()) {
         try {
