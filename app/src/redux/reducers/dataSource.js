@@ -7,6 +7,10 @@ export const CHANGE_DS_ADD_LOADING = 'CHANGE_DS_ADD_LOADING'
 
 export const GET_VIDEO = 'GET_VIDEO'
 export const GET_VIDEO_SUCCESS = 'GET_VIDEO_SUCCESS'
+export const SEARCH_VIDEO = 'SEARCH_VIDEO'
+export const SEARCH_VIDEO_SUCCESS = 'SEARCH_VIDEO_SUCCESS'
+export const CLASSIFY_VIDEO = 'CLASSIFY_VIDEO'
+export const CLASSIFY_VIDEO_SUCCESS = 'CLASSIFY_VIDEO_SUCCESS'
 
 export const GET_LIVE = 'GET_LIVE'
 export const GET_LIVE_SUCCESS = 'GET_LIVE_SUCCESS'
@@ -18,6 +22,7 @@ export const INITIAL_STATE = Immutable.fromJS({
     video: {
         total: 0,
         list: [],
+        otherList: [],
         timestamp: null,
         params: {
             page: 1,
@@ -29,6 +34,7 @@ export const INITIAL_STATE = Immutable.fromJS({
     },
     live: {
         list: [],
+        otherList: [],
         timestamp: null,
         params: {
             page: 1,
