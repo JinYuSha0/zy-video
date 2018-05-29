@@ -1,6 +1,7 @@
 import React from 'react'
 import { store, history } from '../index'
 import { Modal, Input, message } from 'antd'
+import crypto from 'crypto'
 
 //延时
 export const delay = (ms, todo, err) => {
@@ -21,9 +22,20 @@ export const delay = (ms, todo, err) => {
 export const jump = (path) => {
     const { user, router: {location: {pathname}} } = store.getState()
     if(pathname !== path) {
-        history.push(path)
-
-        //user.get('lock')
+        if(user.get('lock')) {
+            getInput('请输入操作密码', '操作密码', 'password', (pass) => {
+                const md5 = crypto.createHash('md5')
+                md5.update(pass)
+                const str = md5.digest('hex')
+                if(user.get('lockPass') === str) {
+                    history.push(path)
+                } else {
+                    message.error('操作密码错误!')
+                }
+            })
+        } else {
+            history.push(path)
+        }
     }
 }
 

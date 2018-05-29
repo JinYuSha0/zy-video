@@ -82,45 +82,68 @@ export default class videoList extends Component {
     constructor(props) {
         super(props)
         this.onScroll = debounce(this.onScroll, 200)
+        this.columnCount = 4
     }
 
     cellRenderer = ({ columnIndex, rowIndex, key, style }) => {
         const {list} = this.props,
-            v = list.get(columnIndex + rowIndex*4)
-
-        return (
-            <VideoItem key={v.id + key} style={style}  v={v}/>
-        )
+            v = list.get(columnIndex + rowIndex*this.columnCount)
+        return !!v ? <VideoItem key={v.id} style={style} v={v}/> : null
     }
 
     onScroll = ({ clientHeight, scrollHeight, scrollTop }) => {
-        if(scrollHeight - clientHeight - scrollTop <= 100) {
+        const { dataSource, changeScrollTop } = this.props,
+            action = dataSource.get('action'),
+            _scrollTop = !!action ? 0 : dataSource.getIn([dataSource.get('activeKey'), 'scrollTop']),
+            isDown = scrollTop - _scrollTop > 0,
+            isLoad = scrollHeight - clientHeight - scrollTop <= 100
+
+        if(isDown && isLoad) {
             //fix 全部加载后向上滑动也会触发
-            if(this.props.dataSource.getIn(['video', 'isAll'])) {
+            const { list, dataSource } = this.props,
+                action = dataSource.get('action'),
+                size = list.size,
+                total = !!action ? dataSource.getIn(['other', 'total']) : dataSource.getIn(['video', 'total'])
+
+            if(total === null || total === 0) {
+                return
+            }
+
+            if(total !== null && total === size) {
+                message.destroy()
                 message.info('已无更多视频')
                 return
             }
 
             this.props.getVideo({ active: true, add: true })
         }
+
+        if(!action) {
+            changeScrollTop(scrollTop)
+        }
     }
 
     render() {
-        const {list} = this.props
+        const { list, dataSource } = this.props,
+            action = dataSource.get('action'),
+            scrollTop = dataSource.getIn([dataSource.get('activeKey'), 'scrollTop'])
+
         return (
             <Row gutter={16} style={{ width: '100%', height: '100%' }}>
-                <AutoSizer>
+                <AutoSizer ref={container => this.container = container}>
                     {({ height, width }) => {
                         const { columnCount, rowHeight } = getColumnCountAndRowHeight(width)
+                        this.columnCount = columnCount
                         return (
                             <Grid
                                 onScroll={this.onScroll}
+                                scrollTop={!!action ? null : scrollTop}
                                 height={height}
                                 width={width}
                                 rowHeight={rowHeight}
                                 columnWidth={(width - 12) / columnCount}
                                 columnCount={columnCount}
-                                rowCount={list.size / columnCount}
+                                rowCount={Math.ceil(list.size / columnCount)}
                                 cellRenderer={this.cellRenderer}
                                 style={{ overflowX: 'hidden', overflowY: 'auto', padding: '8px 0' }}
                                 //宽度减少12px 留给滑动条

@@ -6,8 +6,8 @@ import { login, logout, openLock, closeLock, getCurrentUser } from './sagas/user
 import { WINDOW_MAX, WINDOW_MIN, RESET } from '../redux/reducers/window'
 import { windowMax, windowMin, resetStore } from './sagas/window'
 
-import { CHANGE_KEY, GET_VIDEO, GET_LIVE } from '../redux/reducers/dataSource'
-import { changeKey, getLive, getVideo } from './sagas/dataSource'
+import { CHANGE_KEY, GET_VIDEO, GET_LIVE, SEARCH_VIDEO, CLASSIFY_VIDEO } from '../redux/reducers/dataSource'
+import { changeKey, getLive, getVideo, searchVideo, classifyVideo } from './sagas/dataSource'
 
 import { PLAY_VIDEO, PLAT_MULTIPLE_VIDEO } from '../redux/reducers/playlist'
 import { playVideo, playMultipleVideo } from './sagas/playlist'
@@ -27,6 +27,8 @@ export default function* root() {
         takeEvery(CHANGE_KEY, changeKey),
         takeLatest(GET_VIDEO, getVideo),
         takeLatest(GET_LIVE, getLive),
+        takeLatest(SEARCH_VIDEO, searchVideo),
+        takeLatest(CLASSIFY_VIDEO, classifyVideo),
 
         takeLatest(PLAY_VIDEO, playVideo),
         takeLatest(PLAT_MULTIPLE_VIDEO, playMultipleVideo),

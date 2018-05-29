@@ -1,7 +1,17 @@
 import  { put, call } from 'redux-saga/effects'
 import { store } from '../../index'
-import { cChangePlayType } from '../../redux/reducers/playlist'
-import { INITIAL_STATE as dataSourceInitState, cChangeDsLoading, cGetVideo, cGetLive, cGetVideoSuccess, cGetLiveSuccess, cChangeDsAddLoading } from '../../redux/reducers/dataSource'
+import {
+    INITIAL_STATE as dataSourceInitState,
+    cChangeDsLoading,
+    cGetVideo,
+    cGetLive,
+    cGetVideoSuccess,
+    cGetLiveSuccess,
+    cChangeDsAddLoading,
+    cGetOtherListSuccess,
+    cClearOther,
+    cChangeScrollTop,
+} from '../../redux/reducers/dataSource'
 import { sGetVideoList, sGetLiveList } from '../../service/index'
 import { message } from 'antd'
 
@@ -70,28 +80,40 @@ export function* changeKey({ payload }) {
 export function* getVideo ({ payload: { active = false, add = false, params = getParams('video') } }) {
     if(!!active || needUpdate()) {
         try {
+            const { dataSource } = store.getState(),
+                action = dataSource.get('action')
+
             if(add === true) {
+                if(!!action) {
+                    switch (action) {
+                        case 'search':
+                            yield call(searchVideo, { payload: { add: true } })
+                            break
+                        case 'classify':
+                            yield call(classifyVideo, { payload: { add: true } })
+                            break
+                    }
+                    return
+                }
+
                 yield put(cChangeDsAddLoading(true))
                 params.page += 1
             } else if (active === true) {
+                yield put(cChangeScrollTop(0))
                 yield put(cChangeDsLoading(true))
                 params = getInitParams('video')
             }
 
+            yield put(cClearOther())
             const result = yield call(sGetVideoList, {...params})
             if(result.status === 'success') {
-                let { list, total } = result,
-                    isAll= false
-
+                let { list, total } = result
                 if(add) {
-                    const { dataSource } = store.getState(),
-                        size = dataSource.getIn(['video', 'params', 'size'])
-
-                    isAll = list.length < size
+                    const { dataSource } = store.getState()
                     list = dataSource.getIn(['video', 'list']).concat(list)
                     yield put(cChangeDsAddLoading(false))
                 }
-                yield put(cGetVideoSuccess({ params, list, total, isAll}))
+                yield put(cGetVideoSuccess({ params, list, total }))
             }
         } catch (e) {
             message.error('获取视频列表失败!')
@@ -116,5 +138,71 @@ export function* getLive({ payload: { active = false, params = getParams('live')
         } catch (e) {
             message.error('获取直播列表失败!')
         }
+    }
+}
+
+/***
+ * 搜索视频
+ * @param params
+ * @param add
+ */
+export function* searchVideo({ payload: { params = getParams('other'), add = false } }) {
+    try {
+        if(add === true) {
+            yield put(cChangeDsAddLoading(true))
+            params.page += 1
+        } else {
+            yield put(cChangeDsLoading(true))
+            params.page = 1
+        }
+
+        const result = yield sGetVideoList(params)
+        if(result.status === 'success') {
+            let { list, total } = result
+            if(add) {
+                const { dataSource } = store.getState()
+                list = dataSource.getIn(['other', 'list']).concat(list)
+                yield put(cChangeDsAddLoading(false))
+            }
+            yield put(cGetOtherListSuccess({ params, total, list }))
+
+        } else {
+            throw new Error()
+        }
+    } catch (e) {
+        message.error('搜索视频失败!')
+    }
+}
+
+/***
+ * 分类视频
+ * @param params
+ * @param add
+ */
+export function* classifyVideo({ payload: { params = getParams('other'), add = false } }) {
+    try {
+        if(add === true) {
+            yield put(cChangeDsAddLoading(true))
+            params.page += 1
+        } else {
+            yield put(cChangeDsLoading(true))
+            params.page = 1
+        }
+
+        const result = yield sGetVideoList(params)
+        if(result.status === 'success') {
+            let { list, total } = result
+            if(add) {
+                const { dataSource } = store.getState()
+                list = dataSource.getIn(['other', 'list']).concat(list)
+                yield put(cChangeDsAddLoading(false))
+            }
+            yield put(cGetOtherListSuccess({ params, total, list }))
+
+        } else {
+            throw new Error()
+        }
+    } catch (e) {
+        message.error('获取视频分类列表失败!')
     }
 }

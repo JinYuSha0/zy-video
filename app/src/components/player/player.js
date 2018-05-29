@@ -19,7 +19,7 @@ const VIDEO_OPTIONS = {
             inline: false
         }
     },
-    type: 'application/x-mpegURL'
+    type: 'video/mp4'
 }
 
 //直播视频flv
@@ -45,19 +45,16 @@ const LIVE_OPTIONS = {
 
 class Player extends Component {
     componentDidMount() {
-        //直播
-        const player = this.player = videojs('zy-player', LIVE_OPTIONS)
-        this.player.src([{
-            src: 'http://fms.cntv.lxdns.com/live/flv/channel84.flv',
-            type: 'video/x-flv'
-        }])
+        const { playlist } = this.props,
+            isVideo = playlist.get('type') === 'video',
+            url = playlist.get('url'),
+            options = isVideo ? VIDEO_OPTIONS : LIVE_OPTIONS
 
-        //回播
-        /*const player = this.player = videojs('zy-player', VIDEO_OPTIONS)
+        const player = this.player = videojs('zy-player', options)
         this.player.src([{
-            src: 'http://playertest.longtailvideo.com/adaptive/bipbop/gear4/prog_index.m3u8',
-            type: 'application/x-mpegURL'
-        }])*/
+            src: url,
+            type: options.type
+        }])
     }
 
     componentWillUnmount() {

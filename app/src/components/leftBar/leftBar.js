@@ -5,10 +5,9 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { cOpenLeftBar, cCloseLeftBar } from "../../redux/reducers/leftBar"
 import { cRemovePlay, cSetPlayList } from '../../redux/reducers/playlist'
-import { cGetVideo, cGetLive } from '../../redux/reducers/dataSource'
+import { cGetVideo, cGetLive, cSearchVideo, cClearOther, cClassifyVideo } from '../../redux/reducers/dataSource'
 import { Icon, Badge, Select, Input, message, Tooltip, List, Button } from 'antd'
 import { sGetAllClassify } from '../../service/index'
-import rootReducer from "../../redux/rootReducer";
 
 const Option = Select.Option
 
@@ -68,10 +67,34 @@ class LeftBar extends Component {
         this.props.open()
     }
 
+    onClearOtherSearch = () => {
+        this.props.clearOther()
+        this.search.input.value = ''
+    }
+
+    onSearch = () => {
+        this.props.clearOther()
+        const value = this.search.input.value
+        this.props.searchVideo(value)
+    }
+
+    onClassify = (cateId) => {
+        this.props.clearOther()
+        this.search.input.value = ''
+
+        if(cateId !== 0) {
+            this.props.classifyVideo(cateId)
+        }
+    }
+
     render() {
-        const { leftBar, playlist, removePlay, setPlayList } = this.props,
+        const { leftBar, playlist, removePlay, setPlayList, dataSource } = this.props,
             isOpen = leftBar.get('isOpen'),
-            { classifyList } = this.state
+            { classifyList } = this.state,
+            action = dataSource.get('action'),
+            cateId = dataSource.getIn(['other', 'params', 'cateId']),
+            title = dataSource.getIn(['other', 'params', 'title']),
+            activeKey = dataSource.get('activeKey')
 
         return (
             <div className={'side-bar-wrapper'}>
@@ -81,49 +104,60 @@ class LeftBar extends Component {
                         {
                             isOpen ?
                                 <div className={'side-bar-big'}>
-                                    <div className={'wrapper search-wrapper'}>
-                                        <div className={'title'}>
-                                            <i></i>
-                                            <span>视频搜索</span>
-                                        </div>
+                                    {
+                                        activeKey === 'video' && (
+                                            <div>
+                                                <div className={'wrapper search-wrapper'}>
+                                                    <div className={'title'}>
+                                                        <i></i>
+                                                        <span>视频搜索</span>
+                                                    </div>
 
-                                        <div className={'body'}>
-                                            <Input
-                                                ref={search => this.search = search}
-                                                placeholder={'搜索标题'}
-                                                style={{ width: 180, padding: '0 2px'  }}
-                                                suffix={<Icon type="search" />}
-                                            />
-                                        </div>
-                                    </div>
+                                                    <div className={'body'}>
+                                                        <Input
+                                                            defaultValue={title}
+                                                            ref={search => this.search = search}
+                                                            placeholder={'搜索标题'}
+                                                            style={{ width: 180, padding: '0 2px'  }}
+                                                            prefix={action === 'search' ? <Icon type="close" style={{ cursor: 'pointer' }} onClick={this.onClearOtherSearch}/> : null}
+                                                            suffix={<Icon type="search" style={{ cursor: 'pointer' }} onClick={this.onSearch}/>}
+                                                        />
+                                                    </div>
+                                                </div>
 
-                                    <div className={'wrapper classify-wrapper'}>
-                                        <div className={'title'}>
-                                            <i></i>
-                                            <span>视频分类</span>
-                                        </div>
+                                                <div className={'wrapper classify-wrapper'}>
+                                                    <div className={'title'}>
+                                                        <i></i>
+                                                        <span>视频分类</span>
+                                                    </div>
 
-                                        <div className={'body'}>
-                                            <Select
-                                                ref={classify => this.classify = classify}
-                                                showSearch
-                                                style={{ width: 180, padding: '0 2px'  }}
-                                                placeholder={'视频分类'}
-                                                optionLabelProp={'children'}
-                                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                            >
-                                                {
-                                                    classifyList.map(v => (
-                                                        <Option key={v.cateId} value={v.cateId}>
-                                                            <Tooltip placement="right" title={v.cateName}>
-                                                                {v.cateName}
-                                                            </Tooltip>
-                                                        </Option>
-                                                    ))
-                                                }
-                                            </Select>
-                                        </div>
-                                    </div>
+                                                    <div className={'body'}>
+                                                        <Select
+                                                            onChange={this.onClassify}
+                                                            value={cateId}
+                                                            ref={classify => this.classify = classify}
+                                                            showSearch
+                                                            style={{ width: 180, padding: '0 2px'  }}
+                                                            placeholder={'视频分类'}
+                                                            optionLabelProp={'children'}
+                                                            filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                                        >
+                                                            <Option value={0}>所有分类</Option>
+                                                            {
+                                                                classifyList.map(v => (
+                                                                    <Option key={v.cateId} value={v.cateId}>
+                                                                        <Tooltip placement="right" title={v.cateName}>
+                                                                            {v.cateName}
+                                                                        </Tooltip>
+                                                                    </Option>
+                                                                ))
+                                                            }
+                                                        </Select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )
+                                    }
 
                                     <div className={'wrapper playlist-wrapper'}>
                                         <div className={'title'}>
@@ -154,7 +188,6 @@ class LeftBar extends Component {
                                             ) : <p className={'list-no-data'}>未添加</p>
                                         }
                                     </div>
-
                                 </div>
                                 :
                                 <ul className={'side-bar-small'}>
@@ -163,15 +196,21 @@ class LeftBar extends Component {
                                         <span>刷新</span>
                                     </li>
 
-                                    <li className={'small-item'} onClick={this.onSearchClick}>
-                                        <Icon type="search" style={{ fontSize: 18 }}/>
-                                        <span>搜索</span>
-                                    </li>
+                                    {
+                                        activeKey === 'video' && (
+                                            <div>
+                                                <li className={'small-item'} onClick={this.onSearchClick}>
+                                                    <Icon type="search" style={{ fontSize: 18 }}/>
+                                                    <span>搜索</span>
+                                                </li>
 
-                                    <li className={'small-item'} onClick={this.onClassifyClick}>
-                                        <Icon type="switcher" style={{ fontSize: 18 }}/>
-                                        <span>分类</span>
-                                    </li>
+                                                <li className={'small-item'} onClick={this.onClassifyClick}>
+                                                    <Icon type="switcher" style={{ fontSize: 18 }}/>
+                                                    <span>分类</span>
+                                                </li>
+                                            </div>
+                                        )
+                                    }
 
                                     <li className={'small-item'} onClick={this.onListClick}>
                                         <Badge count={playlist.get('list').size}>
@@ -200,5 +239,8 @@ export default connect(
         setPlayList: cSetPlayList,
         getVideo: cGetVideo,
         getLive: cGetLive,
+        searchVideo: cSearchVideo,
+        classifyVideo: cClassifyVideo,
+        clearOther: cClearOther,
     }, dispatch)
 )(LeftBar)

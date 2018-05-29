@@ -1,13 +1,12 @@
 import './index.less'
 
-import Immutable, { Map } from 'immutable'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { Card, message, Spin } from 'antd'
 import { recursionGetAttr, getInput } from '../../util/util'
 import { cGetCurrentUser } from '../../redux/reducers/user'
-import { cChangeKey, cGetVideo, cGetLive } from '../../redux/reducers/dataSource'
+import { cChangeKey, cGetVideo, cGetLive, cChangeScrollTop } from '../../redux/reducers/dataSource'
 import { cAddPlay, cRemovePlay, cSetPlayList, cPlayVideo, cPlayMultipleVideo } from '../../redux/reducers/playlist'
 
 import PageVersion from '../version/version'
@@ -78,7 +77,7 @@ class Content extends Component {
     }
 
     render() {
-        const { dataSource, getVideo, leftBar } = this.props,
+        const { dataSource, getVideo, leftBar, changeScrollTop } = this.props,
             tabList = [
             {
                 key: 'video',
@@ -88,10 +87,13 @@ class Content extends Component {
                 tab: '直播'
             }
         ],
+            action = dataSource.get('action'),
+            list = dataSource.getIn(['video', 'list']),
+            otherList = dataSource.getIn(['other', 'list']),
             contentList = {
-            video: <VideoList dataSource={dataSource} list={dataSource.getIn(['video', 'list'])} getVideo={getVideo}/>,
-            live: <p>list content</p>
-        },
+                video: <VideoList list={!!action ? otherList : list} dataSource={dataSource} getVideo={getVideo} changeScrollTop={changeScrollTop}/>,
+                live: <p>list content</p>
+            },
             activeKey = dataSource.get('activeKey')
         return (
             <div className={'page-index'}>
@@ -152,5 +154,6 @@ export default connect(
         setPlayList: cSetPlayList,
         playVideo: cPlayVideo,
         playMultipleVideo: cPlayMultipleVideo,
+        changeScrollTop: cChangeScrollTop,
     }, dispatch)
 )(PageIndex)

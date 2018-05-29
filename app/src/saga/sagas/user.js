@@ -69,7 +69,7 @@ export function* closeLock () {
                 md5.update(inputTmp)
                 const str = md5.digest('hex')
 
-                if(str === null || user.get('lockPass') === str) {
+                if(user.get('lockPass') === str) {
                     store.dispatch(cCloseLockSuccess())
                     message.success('关闭操作锁成功.')
                     resolve()

@@ -41,10 +41,10 @@ export default handleActions({
         state.set('list', List(payload))
     ),
     [PLAY_VIDEO_SUCCESS]: (state, {payload}) => (
-        state.set('url', payload).set('multiple', false)
+        state.set('url', payload).set('type', 'video').set('multiple', false)
     ),
     [PLAT_MULTIPLE_VIDEO_SUCCESS]: (state, {payload}) => (
-        state.set('url', payload).set('multiple', true)
+        state.set('url', payload).set('type', 'video').set('multiple', true)
     )
 }, INITIAL_STATE)
 
