@@ -8,6 +8,7 @@ import { recursionGetAttr, getInput } from '../../util/util'
 import { cGetCurrentUser } from '../../redux/reducers/user'
 import { cChangeKey, cGetVideo, cGetLive, cChangeScrollTop } from '../../redux/reducers/dataSource'
 import { cAddPlay, cRemovePlay, cSetPlayList, cPlayVideo, cPlayMultipleVideo } from '../../redux/reducers/playlist'
+import { sValidatePass } from '../../service/index'
 
 import PageVersion from '../version/version'
 import VideoList from '../../components/videoList/video/video'
@@ -64,9 +65,14 @@ class Content extends Component {
                 { addPlay } = this.props
             let item = { id: attr[0], title }
             if(hasEncrypt) {
-                getInput('请输入视频密码', '视频密码', 'password', (pass) => {
+                getInput('请输入视频密码', '视频密码', 'password', async (pass) => {
                     item.pass = pass
-                    addPlay(item)
+                    const result = await sValidatePass({ videoId: item.id, pass })
+                    if(result.status === 'success') {
+                        addPlay(item)
+                    } else {
+                        message.error(result.msg)
+                    }
                 })
             } else {
                 addPlay(item)

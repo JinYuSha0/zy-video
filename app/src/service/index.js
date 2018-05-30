@@ -86,3 +86,13 @@ export async function sGetAllClassify() {
     const result = await fetchGet(URL + 'findAllClassify')
     return result.data
 }
+
+/***
+ * 验证视频密码
+ * @param {videoId, pass}
+ * @returns {Promise<void>}
+ */
+export async function sValidatePass(params) {
+    const result = await fetchPost(URL + 'validateKey', params, getHeaders())
+    return result.data
+}

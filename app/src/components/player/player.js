@@ -53,8 +53,9 @@ class Player extends Component {
         const { user, playlist, updateCurrentTime } = this.props,
             isVideo = playlist.get('type') === 'video',
             isOpenController = this.isOpenController = user.get('controller'),
-            url = this.url = playlist.get('url'),
+            url = playlist.get('url'),
             options = this.options = isVideo ?  VIDEO_OPTIONS : LIVE_OPTIONS,
+            index = this.index =  playlist.get('index'),
             currentTime = playlist.get('currentTime'),
             multiple = playlist.get('multiple')
 
@@ -110,6 +111,7 @@ class Player extends Component {
     componentWillReceiveProps(nextProps) {
         const { playlist, user } = nextProps,
             isOpenController = user.get('controller'),
+            index = playlist.get('index'),
             url = playlist.get('url')
 
         if(this.isOpenController !== isOpenController) {
@@ -123,12 +125,12 @@ class Player extends Component {
             this.isOpenController = isOpenController
         }
 
-        if(this.url !== url) {
+        if(this.index !== index) {
             this.player.src([{
                 src: url,
                 type: this.options.type
             }])
-            this.url = url
+            this.index = index
         }
     }
 

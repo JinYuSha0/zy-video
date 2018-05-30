@@ -1,5 +1,5 @@
 import  { put, call } from 'redux-saga/effects'
-import { store } from '../../index'
+import { store, history } from '../../index'
 import { jump } from '../../util/util'
 import { cPlayVideoSuccess, cPlayMultipleVideoSuccess, cPlayNextVideoSuccess } from '../../redux/reducers/playlist'
 import { sGetVideoUrl } from '../../service/index'
@@ -10,7 +10,11 @@ export function* playVideo({ payload: { id, title, pass } }) {
         const result = yield call(sGetVideoUrl, {id, pass, type: 2})
         if(result.status === 'success') {
             yield put(cPlayVideoSuccess({ url: result.url, title }))
-            jump('/player')
+            if(!!pass) {
+                history.push('/player')
+            } else {
+                jump('/player')
+            }
         } else {
             throw new Error()
         }
