@@ -3,7 +3,7 @@ import './settingsModal.less'
 import React, {Component} from "react"
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { cOpenLock, cCloseLock } from '../../../redux/reducers/user'
+import { cOpenLock, cCloseLock, cOpenController, cCloseController } from '../../../redux/reducers/user'
 import { Switch } from 'antd'
 
 class SettingsModal extends Component {
@@ -26,6 +26,16 @@ class SettingsModal extends Component {
         }
     }
 
+    onControllerChange = () => {
+        const { user, openController, closeController } = this.props,
+            isOpenController = user.get('controller')
+        if(isOpenController) {
+            closeController()
+        } else {
+            openController()
+        }
+    }
+
     render() {
         const { user } = this.props
         return(
@@ -33,6 +43,11 @@ class SettingsModal extends Component {
                 <div className="modalBtn" ref={lock => this.lock = lock}>
                     操作锁
                     <Switch size="small" checked={user.get('lock')} onChange={this.onLockChange}/>
+                </div>
+
+                <div className="modalBtn">
+                    播放控制
+                    <Switch size="small" checked={user.get('controller')} onChange={this.onControllerChange}/>
                 </div>
 
                 <div className="modalBtn">
@@ -49,5 +64,7 @@ export default connect(
     (dispatch) => bindActionCreators({
         openLock: cOpenLock,
         closeLock: cCloseLock,
+        openController: cOpenController,
+        closeController: cCloseController,
     }, dispatch)
 )(SettingsModal)

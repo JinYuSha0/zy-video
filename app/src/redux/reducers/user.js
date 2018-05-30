@@ -14,6 +14,10 @@ export const OPEN_LOCK = 'OPEN_LOCK'
 export const OPEN_LOCK_SUCCESS = 'OPEN_LOCK_SUCCESS'
 export const CLOSE_LOCK = 'CLOSE_LOCK'
 export const CLOSE_LOCK_SUCCESS = 'CLOSE_LOCK_SUCCESS'
+export const OPEN_CONTROLLER = 'OPEN_CONTROLLER'
+export const OPEN_CONTROLLER_SUCCESS = 'OPEN_CONTROLLER_SUCCESS'
+export const CLOSE_CONTROLLER = 'CLOSE_CONTROLLER'
+export const CLOSE_CONTROLLER_SUCCESS = 'CLOSE_CONTROLLER_SUCCESS'
 
 export const INITIAL_STATE = Immutable.fromJS({
     isLogin: false,
@@ -25,6 +29,7 @@ export const INITIAL_STATE = Immutable.fromJS({
         headImg: null
     },
     lock: false,
+    controller: false,
     lockPass: '',
 })
 
@@ -41,7 +46,14 @@ export default handleActions({
     ),
     [CLOSE_LOCK_SUCCESS]: (state) => (
         state.set('lock', false).set('lockPass', '')
+    ),
+    [OPEN_CONTROLLER_SUCCESS]: (state) => (
+        state.set('controller', true)
+    ),
+    [CLOSE_CONTROLLER_SUCCESS]: (state) => (
+        state.set('controller', false)
     )
+
 }, INITIAL_STATE)
 
 export const cLogin = createAction(LOGIN, data => data)
@@ -57,3 +69,7 @@ export const cOpenLock = createAction(OPEN_LOCK)
 export const cOpenLockSuccess = createAction(OPEN_LOCK_SUCCESS, data => data)
 export const cCloseLock = createAction(CLOSE_LOCK)
 export const cCloseLockSuccess = createAction(CLOSE_LOCK_SUCCESS)
+export const cOpenController = createAction(OPEN_CONTROLLER)
+export const cOpenControllerSuccess = createAction(OPEN_CONTROLLER_SUCCESS)
+export const cCloseController = createAction(CLOSE_CONTROLLER)
+export const cCloseControllerSuccess = createAction(CLOSE_CONTROLLER_SUCCESS)

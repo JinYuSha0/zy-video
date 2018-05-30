@@ -35,14 +35,14 @@ class Header extends Component {
         if(!user.get('isLogin')) {
             ipcRenderer.send('open-window', LOGIN, login_options)
         } else {
-            new randomModal(<UserModal store={store}/>, e.target, 140, 90)
+            new randomModal(<UserModal store={store}/>, e.target, 140, 48)
         }
     }
 
     onSettingClick = (e) => {
         const { user } = this.props
         if(user.get('isLogin')) {
-            new randomModal(<SettingsModal store={store}/>, e.target, 140, 90)
+            new randomModal(<SettingsModal store={store}/>, e.target, 140, 128)
         }
     }
 

@@ -4,10 +4,11 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { cOpenLeftBar, cCloseLeftBar } from "../../redux/reducers/leftBar"
-import { cRemovePlay, cSetPlayList } from '../../redux/reducers/playlist'
+import { cRemovePlay, cSetPlayList, cPlayMultipleVideo } from '../../redux/reducers/playlist'
 import { cGetVideo, cGetLive, cSearchVideo, cClearOther, cClassifyVideo } from '../../redux/reducers/dataSource'
 import { Icon, Badge, Select, Input, message, Tooltip, List, Button } from 'antd'
 import { sGetAllClassify } from '../../service/index'
+import { jump, secondToDate } from '../../util/util'
 
 const Option = Select.Option
 
@@ -67,6 +68,10 @@ class LeftBar extends Component {
         this.props.open()
     }
 
+    onHistoryClick = () => {
+        this.props.open()
+    }
+
     onClearOtherSearch = () => {
         this.props.clearOther()
         this.search.input.value = ''
@@ -87,6 +92,14 @@ class LeftBar extends Component {
         }
     }
 
+    onMultiplePlay = () => {
+        this.props.playMultipleVideo()
+    }
+
+    onHistoryPlay = () => {
+        jump('/player')
+    }
+
     render() {
         const { leftBar, playlist, removePlay, setPlayList, dataSource } = this.props,
             isOpen = leftBar.get('isOpen'),
@@ -94,7 +107,8 @@ class LeftBar extends Component {
             action = dataSource.get('action'),
             cateId = dataSource.getIn(['other', 'params', 'cateId']),
             title = dataSource.getIn(['other', 'params', 'title']),
-            activeKey = dataSource.get('activeKey')
+            activeKey = dataSource.get('activeKey'),
+            hasHistory = !!playlist.get('url')
 
         return (
             <div className={'side-bar-wrapper'}>
@@ -116,6 +130,7 @@ class LeftBar extends Component {
                                                     <div className={'body'}>
                                                         <Input
                                                             defaultValue={title}
+                                                            onPressEnter={this.onSearch}
                                                             ref={search => this.search = search}
                                                             placeholder={'搜索标题'}
                                                             style={{ width: 180, padding: '0 2px'  }}
@@ -182,10 +197,26 @@ class LeftBar extends Component {
 
                                                     <div className={'btn-container'}>
                                                         <Button type="danger" size={'small'} onClick={() => {setPlayList([])}}>清空</Button>
-                                                        <Button type="primary" size={'small'}>播放</Button>
+                                                        <Button type="primary" size={'small'} onClick={this.onMultiplePlay}>播放</Button>
                                                     </div>
                                                 </div>
                                             ) : <p className={'list-no-data'}>未添加</p>
+                                        }
+                                    </div>
+
+                                    <div className={'wrapper playlist-wrapper'}>
+                                        <div className={'title'}>
+                                            <i></i>
+                                            <span>播放记录</span>
+                                        </div>
+
+                                        {
+                                            hasHistory ? <div style={{ display: 'flex' }}>
+                                                <p style={{ color: '#d0d0d0', fontSize: 12, padding: 4, margin: 0, flex: 2}}>
+                                                    {playlist.get('title') + '(' + secondToDate(playlist.get('currentTime')) + ')'}
+                                                </p>
+                                                <Button type="primary" size={'small'} style={{ flex: 1 }} onClick={this.onHistoryPlay}>继续播放</Button>
+                                            </div> : <p className={'list-no-data'}>无</p>
                                         }
                                     </div>
                                 </div>
@@ -218,6 +249,11 @@ class LeftBar extends Component {
                                         </Badge>
                                         <span>列表</span>
                                     </li>
+
+                                    <li className={'small-item'} onClick={this.onListClick}>
+                                        <Icon type="calendar" style={{ fontSize: 18 }}/>
+                                        <span>记录</span>
+                                    </li>
                                 </ul>
                         }
 
@@ -242,5 +278,6 @@ export default connect(
         searchVideo: cSearchVideo,
         classifyVideo: cClassifyVideo,
         clearOther: cClearOther,
+        playMultipleVideo: cPlayMultipleVideo
     }, dispatch)
 )(LeftBar)

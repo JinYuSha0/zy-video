@@ -9,9 +9,15 @@
   .video-js * {
     outline: none;
   }
-}
-
-.vjs-big-play-button {
-  top: calc(50% - 0.75rem) !important;
-  left: calc(50% - 1.5rem) !important;
+  .hide-custom-controls {
+    .vjs-progress-control {
+      display: none;
+    }
+    .vjs-remaining-time {
+      display: none;
+    }
+    .vjs-playback-rate {
+      display: none;
+    }
+  }
 }

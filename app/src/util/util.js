@@ -3,6 +3,29 @@ import { store, history } from '../index'
 import { Modal, Input, message } from 'antd'
 import crypto from 'crypto'
 
+export const hasClass = (elem, cls) => {
+    if(elem) {
+        return !!elem.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'))
+    } else {
+        return false
+    }
+}
+
+//移除类名
+export const removeClass = (elem, cls) => {
+    if (hasClass(elem, cls)) {
+        var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)')
+        elem.className = elem.className.replace(reg, '')
+    }
+}
+
+//添加类名
+export const addClass = (elem, cls) => {
+    if (!hasClass(elem, cls)) {
+        elem.className += " " + cls
+    }
+}
+
 //延时
 export const delay = (ms, todo, err) => {
     return new Promise((resolve, reject) => {
@@ -199,4 +222,20 @@ export const getInput = (title = '', placeholder = '', type = '', todo) => {
 
         },
     })
+}
+
+export const secondToDate = (result) => {
+    const big10 = (num) => {
+        if(num < 10) {
+            return '0' + num
+        }
+
+        return num
+    }
+
+    let h = big10(Math.floor(result / 3600)),
+        m = big10(Math.floor((result / 60 % 60))),
+        s = big10(Math.floor((result % 60)))
+
+    return result = h + ":" + m + ":" + s
 }

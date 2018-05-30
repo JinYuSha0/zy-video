@@ -10,7 +10,6 @@ class UserModal extends Component {
         const { logout } = this.props
         return(
             <div className="userModal">
-                <div className="modalBtn enter">个人信息</div>
                 <div className="modalBtn enter" onClick={logout}>退出登陆</div>
             </div>
         )
