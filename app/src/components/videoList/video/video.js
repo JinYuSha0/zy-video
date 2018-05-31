@@ -1,11 +1,10 @@
 import './video.less'
 
 import React, { Component } from 'react'
-import { Card, Icon, Tag, Col, Row } from 'antd'
+import { Card, Icon, Tag, Col, Row, message } from 'antd'
 import { AutoSizer, Grid } from 'react-virtualized'
 import { rem2px } from "../../../util/util"
 import debounce from 'lodash.debounce'
-import { message } from 'antd'
 
 const { Meta } = Card
 

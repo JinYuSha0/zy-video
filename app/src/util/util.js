@@ -43,7 +43,11 @@ export const delay = (ms, todo, err) => {
 
 //跳转
 export const jump = (path) => {
-    const { user, router: {location: {pathname}} } = store.getState()
+    const { user, router } = store.getState()
+    let pathname = ''
+    if(!!router.location) {
+        pathname = router.location.pathname
+    }
     if(pathname !== path) {
         if(user.get('lock')) {
             getInput('请输入操作密码', '操作密码', 'password', (pass) => {
@@ -224,6 +228,7 @@ export const getInput = (title = '', placeholder = '', type = '', todo) => {
     })
 }
 
+//秒数转化为小时分钟秒
 export const secondToDate = (result) => {
     const big10 = (num) => {
         if(num < 10) {
@@ -238,4 +243,12 @@ export const secondToDate = (result) => {
         s = big10(Math.floor((result % 60)))
 
     return result = h + ":" + m + ":" + s
+}
+
+//获取随机数
+export const getRandom = (min, max) =>{
+    let r = Math.random() * (max - min),
+        re = Math.round(r + min);
+    re = Math.max(Math.min(re, max), min)
+    return re
 }

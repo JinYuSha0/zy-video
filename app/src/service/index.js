@@ -96,3 +96,13 @@ export async function sValidatePass(params) {
     const result = await fetchPost(URL + 'validateKey', params, getHeaders())
     return result.data
 }
+
+/**
+ * 发送钉钉信息通知
+ * @param params remark(string)
+ * @returns {Promise<void>}
+ */
+export async function sSendDingText(params) {
+    const result = await fetchPost(URL + 'sendDingText', params, getHeaders())
+    return result.data
+}

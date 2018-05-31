@@ -1,7 +1,7 @@
 import  { put, call } from 'redux-saga/effects'
 import { store, history } from '../../index'
 import { jump } from '../../util/util'
-import { cPlayVideoSuccess, cPlayMultipleVideoSuccess, cPlayNextVideoSuccess } from '../../redux/reducers/playlist'
+import { cPlayVideoSuccess, cPlayMultipleVideoSuccess, cPlayNextVideoSuccess, cPlayLiveSuccess } from '../../redux/reducers/playlist'
 import { sGetVideoUrl } from '../../service/index'
 import { message } from 'antd'
 
@@ -19,6 +19,7 @@ export function* playVideo({ payload: { id, title, pass } }) {
             throw new Error()
         }
     } catch (e) {
+        console.log(e)
         message.error('获取视频链接失败!')
     }
 }
@@ -37,6 +38,7 @@ export function* playMultipleVideo() {
             throw new Error()
         }
     } catch (e) {
+        console.log(e)
         message.error('获取视频链接失败!')
     }
 }
@@ -56,5 +58,24 @@ export function* playNextVideo() {
         }
     } catch (e) {
         message.error('获取下一个视频链接失败!')
+    }
+}
+
+export function* playLive({ payload: { title, pass } }) {
+    try {
+        const result = yield call(sGetVideoUrl, {title, pass, type: 3})
+        if(result.status === 'success') {
+            yield put(cPlayLiveSuccess({ url: result.url, title }))
+            if(!!pass) {
+                history.push('/player')
+            } else {
+                jump('/player')
+            }
+        } else {
+            throw new Error()
+        }
+    } catch (e) {
+        console.log(e)
+        message.error('获取直播链接失败!')
     }
 }

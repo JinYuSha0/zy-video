@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>flv</title>
+    <link rel="stylesheet" href="static/video-js.min.css">
+</head>
+<body>
+
+<video id="videojs-flvjs-player" class="video-js vjs-default-skin" controls>
+    <source src="rtmp://video-center.alivecdn.com/inner/course-1527752397244?vhost=zhibo.gelantang.com&auth_key=1527838797-0-0-bdf1f368cd5c1321769e9a8860b2304b" type='rtmp/flv'>
+</video>
+
+<script src="static/video.min.js"></script>
+<script>
+    videojs('videojs-flvjs-player', {
+        techOrder: ['html5'],
+    })
+</script>
+</body>
+</html>

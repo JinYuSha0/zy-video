@@ -6,7 +6,9 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { addClass, removeClass, jump } from '../../util/util'
 import { cUpdateCurrentTime, cPlayNextVideo, cSetPlayList } from '../../redux/reducers/playlist'
-import { Modal } from 'antd'
+import { Modal, message } from 'antd'
+import { getRandom } from '../../util/util'
+import { sSendDingText } from '../../service/index'
 
 //回播视频hls加密
 const VIDEO_OPTIONS = {
@@ -15,7 +17,6 @@ const VIDEO_OPTIONS = {
     html5: {
         withCredentials: true
     },
-    loop: false,
     playbackRates: [0.75, 1, 1.25, 1.5, 2],
     controlBar: {
         remainingTimeDisplay: true,
@@ -53,21 +54,38 @@ class Player extends Component {
         const { user, playlist, updateCurrentTime } = this.props,
             isVideo = playlist.get('type') === 'video',
             isOpenController = this.isOpenController = user.get('controller'),
+            isOpenFeedBack = user.get('feedback'),
             url = playlist.get('url'),
             options = this.options = isVideo ?  VIDEO_OPTIONS : LIVE_OPTIONS,
             index = this.index =  playlist.get('index'),
             currentTime = playlist.get('currentTime'),
-            multiple = playlist.get('multiple')
+            multiple = playlist.get('multiple'),
+            danmaku = this.danmaku = new Danmaku()
 
         if(!isOpenController) {
             addClass(this.playerDOM, 'hide-custom-controls')
         }
+
+        danmaku.init({
+            container: this.danmu
+        })
+        this.danmuTimer = setInterval(this.emitDanmu, 3*60*1000)
 
         const player = this.player = videojs(this.playerDOM, options)
         this.player.src([{
             src: url,
             type: options.type
         }])
+
+        this.player.on('fullscreenchange', () => {
+            this.danmaku.resize();
+        })
+        this.player.on('pause', () => {
+            this.danmaku.hide()
+        })
+        this.player.on('play', () => {
+            this.danmaku.show()
+        })
 
         if(isVideo) {
             this.player.currentTime(currentTime)
@@ -79,7 +97,7 @@ class Player extends Component {
                 })
             })
 
-            player.on('ended', (e) => {
+            player.on('ended', async (e) => {
                 const { playlist } = store.getState(),
                     index = playlist.get('index')+1,
                     size = playlist.get('list').size
@@ -87,6 +105,32 @@ class Player extends Component {
                 if(multiple && index < size) {
                     this.props.playNextVideo()
                 } else {
+                    if(isOpenFeedBack) {
+                        try {
+                            const result = await sSendDingText({ remark: '点播已经结束,请安排后续工作' })
+                            if(result.status !== 'success') {
+                                throw new Error()
+                            }
+                        } catch (e) {
+                            message.error('发送反馈失败!')
+                        }
+                    }
+
+                    if(!!this.timer) {
+                        clearInterval(this.timer)
+                        this.timer = null
+                    }
+
+                    if(!!this.danmuTimer) {
+                        clearInterval(this.danmuTimer)
+                        this.danmuTimer = null
+                    }
+
+                    if(!!this.danmaku) {
+                        this.danmaku.destroy()
+                        this.danmaku = null
+                    }
+
                     Modal.success({
                         title: '本次播放已经完成',
                         content: '如需继续播放请通知管理员',
@@ -97,6 +141,13 @@ class Player extends Component {
                     })
                 }
             })
+        } else {
+            //直播断线重连
+            this.timer = setInterval(() => {
+                if(this.player.currentTime() === 0) {
+                    this.player.load()
+                }
+            }, 2000)
         }
     }
 
@@ -105,6 +156,21 @@ class Player extends Component {
             this.player.pause();
             this.player.dispose()
             this.player = null
+        }
+
+        if(!!this.timer) {
+            clearInterval(this.timer)
+            this.timer = null
+        }
+
+        if(!!this.danmuTimer) {
+            clearInterval(this.danmuTimer)
+            this.danmuTimer = null
+        }
+
+        if(!!this.danmaku) {
+            this.danmaku.destroy()
+            this.danmaku = null
         }
     }
 
@@ -115,6 +181,7 @@ class Player extends Component {
             url = playlist.get('url')
 
         if(this.isOpenController !== isOpenController) {
+            if(!this.playerDOM.parentNode) return
             const controllerBar = this.playerDOM.parentNode.querySelector('.vjs-control-bar')
             if(isOpenController) {
                 removeClass(this.playerDOM.parentNode, 'hide-custom-controls')
@@ -134,10 +201,25 @@ class Player extends Component {
         }
     }
 
+    emitDanmu = () => {
+        const content = {
+            text: this.props.user.getIn(['userInfo', 'nickName']) + '正在点播放本视频,严禁录音录像!',
+            mode: 'ltr',
+            style: {
+                lineHeight: getRandom(100, this.danmu.clientHeight) + 'px',
+                fontSize: '28px',
+                color: '#ffffff'
+            },
+        }
+
+        this.danmaku.emit(content)
+    }
+
     render() {
         return (
             <div className="zy-player">
                 <video ref={player => this.playerDOM = player} id="zy-player" className="video-js vjs-default-skin vjs-big-play-centered" controls/>
+                <div className={'danmu'} ref={danmu => this.danmu = danmu}></div>
             </div>
         )
     }

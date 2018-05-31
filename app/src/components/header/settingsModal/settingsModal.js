@@ -3,7 +3,7 @@ import './settingsModal.less'
 import React, {Component} from "react"
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { cOpenLock, cCloseLock, cOpenController, cCloseController } from '../../../redux/reducers/user'
+import { cOpenLock, cCloseLock, cOpenController, cCloseController, cChangeFeedBackSuccess } from '../../../redux/reducers/user'
 import { Switch } from 'antd'
 
 class SettingsModal extends Component {
@@ -36,6 +36,10 @@ class SettingsModal extends Component {
         }
     }
 
+    onFeedbackChange = () => {
+        this.props.changeFeedBack()
+    }
+
     render() {
         const { user } = this.props
         return(
@@ -52,7 +56,7 @@ class SettingsModal extends Component {
 
                 <div className="modalBtn">
                     播放反馈
-                    <Switch size="small"/>
+                    <Switch size="small" checked={user.get('feedback')} onChange={this.onFeedbackChange}/>
                 </div>
             </div>
         )
@@ -66,5 +70,6 @@ export default connect(
         closeLock: cCloseLock,
         openController: cOpenController,
         closeController: cCloseController,
+        changeFeedBack: cChangeFeedBackSuccess,
     }, dispatch)
 )(SettingsModal)

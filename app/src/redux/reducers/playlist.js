@@ -14,6 +14,9 @@ export const PLAT_MULTIPLE_VIDEO_SUCCESS = 'PLAT_MULTIPLE_VIDEO_SUCCESS'
 export const PLAY_NEXT_VIDEO = 'PLAY_NEXT_VIDEO'
 export const PLAY_NEXT_VIDEO_SUCCESS = 'PLAY_NEXT_VIDEO_SUCCESS'
 
+export const PLAY_LIVE = 'PLAY_LIVE'
+export const PLAY_LIVE_SUCCESS = 'PLAY_LIVE_SUCCESS'
+
 export const UPDATE_CURRENT_TIME = 'UPDATE_CURRENT_TIME'
 
 export const INITIAL_STATE = Immutable.fromJS({
@@ -51,6 +54,9 @@ export default handleActions({
     [PLAY_VIDEO_SUCCESS]: (state, { payload: { url, title } }) => (
         state.set('url', url).set('title', title).set('type', 'video').set('multiple', false).set('currentTime', 0).set('duration', 0)
     ),
+    [PLAY_LIVE_SUCCESS]: (state, { payload: { url, title } }) => (
+        state.set('url', url).set('title', title).set('type', 'live').set('multiple', false).set('currentTime', 0).set('duration', 0)
+    ),
     [PLAT_MULTIPLE_VIDEO_SUCCESS]: (state, { payload: { url, title }}) => (
         state.set('url', url).set('title', title).set('type', 'video').set('multiple', true).set('index', 0).set('currentTime', 0).set('duration', 0)
     ),
@@ -67,6 +73,8 @@ export const cAddPlay = createAction(ADD_PLAY, item => item)
 export const cRemovePlay = createAction(REMOVE_PLAY, id => id)
 export const cSetPlayList = createAction(SET_PLAY_LIST, list => list)
 export const cPlayVideo = createAction(PLAY_VIDEO, id => id)
+export const cPlayLive = createAction(PLAY_LIVE, title => title)
+export const cPlayLiveSuccess = createAction(PLAY_LIVE_SUCCESS, data => data)
 export const cPlayVideoSuccess = createAction(PLAY_VIDEO_SUCCESS, data => data)
 export const cPlayMultipleVideo = createAction(PLAT_MULTIPLE_VIDEO)
 export const cPlayMultipleVideoSuccess = createAction(PLAT_MULTIPLE_VIDEO_SUCCESS, url => url)

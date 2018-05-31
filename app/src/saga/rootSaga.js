@@ -9,8 +9,8 @@ import { windowMax, windowMin, resetStore } from './sagas/window'
 import { CHANGE_KEY, GET_VIDEO, GET_LIVE, SEARCH_VIDEO, CLASSIFY_VIDEO } from '../redux/reducers/dataSource'
 import { changeKey, getLive, getVideo, searchVideo, classifyVideo } from './sagas/dataSource'
 
-import { PLAY_VIDEO, PLAT_MULTIPLE_VIDEO, PLAY_NEXT_VIDEO } from '../redux/reducers/playlist'
-import { playVideo, playMultipleVideo, playNextVideo } from './sagas/playlist'
+import { PLAY_VIDEO, PLAT_MULTIPLE_VIDEO, PLAY_NEXT_VIDEO, PLAY_LIVE } from '../redux/reducers/playlist'
+import { playVideo, playMultipleVideo, playNextVideo, playLive } from './sagas/playlist'
 
 export default function* root() {
     yield all([
@@ -35,6 +35,8 @@ export default function* root() {
         takeLatest(PLAY_VIDEO, playVideo),
         takeLatest(PLAT_MULTIPLE_VIDEO, playMultipleVideo),
         takeLatest(PLAY_NEXT_VIDEO, playNextVideo),
+        takeLatest(PLAY_LIVE, playLive),
+
 
     ])
 }

@@ -11,6 +11,7 @@ import { ConnectedRouter } from 'react-router-redux'
 import { Route, Switch } from 'react-router-dom'
 import { ipcRenderer } from 'electron'
 import EventEmitter from 'events'
+import io from 'socket.io-client'
 
 import Header from './components/header/header'
 
@@ -21,6 +22,7 @@ import { cLogin } from './redux/reducers/user'
 import { cWindowMax, cWindowMin } from './redux/reducers/window'
 
 const root = document.getElementById('app')
+export const socket = io('http://test.yourhr.com.cn', { path: '/ws', forceNew: true })
 export const history = createHistory()
 export const { store, persistor } = createStore(rootReducer, rootSaga, () => {
     ipcRenderer.send('show-window')
@@ -62,3 +64,6 @@ windowEvent.on('unmaximize', () => {
     store.dispatch(cWindowMin())
 })
 
+socket.on('hello', data => {
+    console.log(data)
+})

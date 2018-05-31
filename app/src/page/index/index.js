@@ -7,11 +7,11 @@ import { Card, message, Spin } from 'antd'
 import { recursionGetAttr, getInput } from '../../util/util'
 import { cGetCurrentUser } from '../../redux/reducers/user'
 import { cChangeKey, cGetVideo, cGetLive, cChangeScrollTop } from '../../redux/reducers/dataSource'
-import { cAddPlay, cRemovePlay, cSetPlayList, cPlayVideo, cPlayMultipleVideo } from '../../redux/reducers/playlist'
+import { cAddPlay, cRemovePlay, cSetPlayList, cPlayVideo, cPlayLive, cPlayMultipleVideo } from '../../redux/reducers/playlist'
 import { sValidatePass } from '../../service/index'
 
-import PageVersion from '../version/version'
 import VideoList from '../../components/videoList/video/video'
+import LiveList from '../../components/videoList/live/live'
 import LeftBar from '../../components/leftBar/leftBar'
 
 class Content extends Component {
@@ -30,6 +30,9 @@ class Content extends Component {
             switch (action) {
                 case 'play-video':
                     this.playVideo(e)
+                    break
+                case 'play-live':
+                    this.playLive(e)
                     break
                 case 'add-video':
                     this.addVideo(e)
@@ -51,6 +54,24 @@ class Content extends Component {
                 })
             } else {
                 playVideo({ id, title })
+            }
+        } catch (e) {
+            message.error(e.message)
+        }
+    }
+
+    playLive = async (e) => {
+        try {
+            const { attr, elem } = await recursionGetAttr(e.target, ['data-live-title', 'data-live-encrypted']),
+                [title, encrypted] = attr,
+                { playLive } = this.props
+
+            if(JSON.parse(encrypted)) {
+                getInput('请输入直播密码', '直播密码', 'password', (pass) => {
+                    playLive({ title, pass })
+                })
+            } else {
+                playLive({ title })
             }
         } catch (e) {
             message.error(e.message)
@@ -94,11 +115,12 @@ class Content extends Component {
             }
         ],
             action = dataSource.get('action'),
-            list = dataSource.getIn(['video', 'list']),
+            videoList = dataSource.getIn(['video', 'list']),
+            liveList = dataSource.getIn(['live', 'list']),
             otherList = dataSource.getIn(['other', 'list']),
             contentList = {
-                video: <VideoList list={!!action ? otherList : list} dataSource={dataSource} getVideo={getVideo} changeScrollTop={changeScrollTop}/>,
-                live: <p>list content</p>
+                video: <VideoList list={!!action ? otherList : videoList} dataSource={dataSource} getVideo={getVideo} changeScrollTop={changeScrollTop}/>,
+                live: <LiveList list={liveList}/>
             },
             activeKey = dataSource.get('activeKey')
         return (
@@ -144,7 +166,7 @@ class PageIndex extends Component {
         return user.get('isLogin') ?
             <Content {...this.props}/>
             :
-            <PageVersion/>
+            null
     }
 }
 
@@ -159,6 +181,7 @@ export default connect(
         removePlay: cRemovePlay,
         setPlayList: cSetPlayList,
         playVideo: cPlayVideo,
+        playLive: cPlayLive,
         playMultipleVideo: cPlayMultipleVideo,
         changeScrollTop: cChangeScrollTop,
     }, dispatch)

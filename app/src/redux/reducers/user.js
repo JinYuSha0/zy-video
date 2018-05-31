@@ -18,6 +18,7 @@ export const OPEN_CONTROLLER = 'OPEN_CONTROLLER'
 export const OPEN_CONTROLLER_SUCCESS = 'OPEN_CONTROLLER_SUCCESS'
 export const CLOSE_CONTROLLER = 'CLOSE_CONTROLLER'
 export const CLOSE_CONTROLLER_SUCCESS = 'CLOSE_CONTROLLER_SUCCESS'
+export const CHANGE_FEEDBACK_SUCCESS = 'CHANGE_FEEDBACK_SUCCESS'
 
 export const INITIAL_STATE = Immutable.fromJS({
     isLogin: false,
@@ -29,8 +30,9 @@ export const INITIAL_STATE = Immutable.fromJS({
         headImg: null
     },
     lock: false,
-    controller: false,
     lockPass: '',
+    controller: false,
+    feedback: true,
 })
 
 export default handleActions({
@@ -52,8 +54,10 @@ export default handleActions({
     ),
     [CLOSE_CONTROLLER_SUCCESS]: (state) => (
         state.set('controller', false)
-    )
-
+    ),
+    [CHANGE_FEEDBACK_SUCCESS]: (state) => (
+        state.set('feedback', !state.get('feedback'))
+    ),
 }, INITIAL_STATE)
 
 export const cLogin = createAction(LOGIN, data => data)
@@ -73,3 +77,4 @@ export const cOpenController = createAction(OPEN_CONTROLLER)
 export const cOpenControllerSuccess = createAction(OPEN_CONTROLLER_SUCCESS)
 export const cCloseController = createAction(CLOSE_CONTROLLER)
 export const cCloseControllerSuccess = createAction(CLOSE_CONTROLLER_SUCCESS)
+export const cChangeFeedBackSuccess = createAction(CHANGE_FEEDBACK_SUCCESS)

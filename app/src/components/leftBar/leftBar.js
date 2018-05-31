@@ -211,11 +211,11 @@ class LeftBar extends Component {
                                         </div>
 
                                         {
-                                            hasHistory ? <div style={{ display: 'flex' }}>
-                                                <p style={{ color: '#d0d0d0', fontSize: 12, padding: 4, margin: 0, flex: 2}}>
+                                            hasHistory ? <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                <p style={{ color: '#d0d0d0', fontSize: 12, padding: 4, margin: 0, width: '100%', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
                                                     {playlist.get('title') + '(' + secondToDate(playlist.get('currentTime')) + ')'}
                                                 </p>
-                                                <Button type="primary" size={'small'} style={{ flex: 1 }} onClick={this.onHistoryPlay}>继续播放</Button>
+                                                <Button type="primary" size={'small'} onClick={this.onHistoryPlay}>继续播放</Button>
                                             </div> : <p className={'list-no-data'}>无</p>
                                         }
                                     </div>
