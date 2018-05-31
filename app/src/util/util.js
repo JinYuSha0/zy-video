@@ -2,6 +2,7 @@ import React from 'react'
 import { store, history } from '../index'
 import { Modal, Input, message } from 'antd'
 import crypto from 'crypto'
+import { cLogout } from '../redux/reducers/user'
 
 export const hasClass = (elem, cls) => {
     if(elem) {
@@ -82,7 +83,10 @@ export const fetchGet = (url, params, headers = {}, timeout = 5000) => {
         }).then(json => {
             if(json.code === 200) {
                 resolve(json)
-            } else {
+            } else if (json.code === 1002) {
+                message.error('登陆过期，请重新登陆。')
+                store.dispatch(cLogout())
+            }  else {
                 throw new Error(json.code)
             }
         }).catch(e => {
@@ -110,6 +114,9 @@ export const fetchPost = (url, params, headers = {}, timeout = 5000) => {
         }).then(async json => {
             if(json.code === 200) {
                 resolve(json)
+            } else if (json.code === 1002) {
+                message.error('登陆过期，请重新登陆。')
+                store.dispatch(cLogout())
             } else {
                 throw new Error(json.code)
             }
