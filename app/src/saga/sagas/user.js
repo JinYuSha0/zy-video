@@ -1,12 +1,12 @@
 import React from 'react'
 import  { put, call } from 'redux-saga/effects'
-import { store, persistor, connectSocket } from '../../index'
+import { store,  connectSocket } from '../../index'
 import { ipcRenderer } from "electron"
 import { sLogin, sGetCurrentUser } from "../../service"
 import { Modal, Input, message } from 'antd'
 import crypto from 'crypto'
 import { cGetVideo } from '../../redux/reducers/dataSource'
-import { cResetStore } from '../../redux/reducers/window'
+import { electronStore } from '../../config/persistConfig'
 import {
     cLoginSuccess,
     cLogoutSuccess,
@@ -37,35 +37,35 @@ export function* login ({ payload }) {
     }
 }
 
-export function* logout({ payload: { title, content } }) {
-    if(!!title) {
-        Modal.warning({
-            title: title,
-            content: content,
-            okText: '知道了'
-        })
+export function* logout({ payload }) {
+    if(!!payload) {
+        const { title, content } = payload
+
+        if(!!title) {
+            Modal.warning({
+                title: title,
+                content: content,
+                okText: '知道了'
+            })
+        }
     }
+
+    //yield persistor.purge()
+    //yield put(cResetStore())
+    yield put(cLogoutSuccess())
+    electronStore.clear()
+
+
     jump('/')
     if(!!window._socket && window._socket.connected && !!window._socket.disconnect) {
         window._socket.disconnect()
     }
-
-    yield persistor.purge()
-    yield put(cResetStore())
-    yield put(cLogoutSuccess())
 }
 
 export function* getCurrentUser() {
-    try {
-        const result = yield call(sGetCurrentUser)
-        if(result.status === 'success') {
-            yield put(cGetCurrentUserSuccess({...result.userInfo}))
-        } else {
-            throw new Error()
-        }
-    } catch (e) {
-        message.error('登陆过期，请重新登陆。')
-        store.dispatch(cLogout())
+    const result = yield call(sGetCurrentUser)
+    if(result.status === 'success') {
+        yield put(cGetCurrentUserSuccess({...result.userInfo}))
     }
 }
 

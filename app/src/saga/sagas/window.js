@@ -1,5 +1,4 @@
 import { ipcRenderer } from "electron"
-import { electronStore } from '../../config/persistConfig'
 import { Modal } from 'antd'
 
 export function* windowMax() {
@@ -8,10 +7,6 @@ export function* windowMax() {
 
 export function* windowMin() {
     ipcRenderer.send('unmaximize-window')
-}
-
-export function* resetStore () {
-    electronStore.clear()
 }
 
 export function* notice ({ payload }) {

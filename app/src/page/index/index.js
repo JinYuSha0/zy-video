@@ -1,6 +1,7 @@
 import './index.less'
 
 import React, { Component } from 'react'
+import { store } from '../../index'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { Card, message, Spin } from 'antd'
@@ -153,12 +154,14 @@ class Content extends Component {
 
 class PageIndex extends Component {
     componentWillMount() {
-        const { user, getCurrentUser } = this.props,
+        const { getCurrentUser } = this.props,
+            { user } = store.getState(),
             isLogin = user.get('isLogin')
 
-        if(isLogin) {
+        //todo fix
+        /*if(isLogin) {
             getCurrentUser()
-        }
+        }*/
     }
 
     render() {

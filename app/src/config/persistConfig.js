@@ -6,9 +6,7 @@ const createElectronStorage = ({electronStoreOpts} = {}) => {
 
     return {
         clear: () => {
-            return new Promise((resolve) => {
-                resolve(store.clear())
-            })
+            store.clear()
         },
         getItem: (key) => {
             return new Promise((resolve) => {
@@ -30,7 +28,7 @@ const createElectronStorage = ({electronStoreOpts} = {}) => {
 
 export const electronStore = createElectronStorage({
     electronStoreOpts: {
-        encryptionKey: 'zyjy8410'
+        //encryptionKey: 'zyjy8410'
     }
 })
 

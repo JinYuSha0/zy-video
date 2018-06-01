@@ -3,8 +3,8 @@ import { put, take, takeLatest, takeEvery, all } from 'redux-saga/effects'
 import { LOGIN, LOGOUT, GET_CURRENT_USER, OPEN_LOCK, CLOSE_LOCK, OPEN_CONTROLLER, CLOSE_CONTROLLER } from '../redux/reducers/user'
 import { login, logout, openLock, closeLock, getCurrentUser, openController, closeController } from './sagas/user'
 
-import { WINDOW_MAX, WINDOW_MIN, RESET, NOTICE } from '../redux/reducers/window'
-import { windowMax, windowMin, resetStore, notice } from './sagas/window'
+import { WINDOW_MAX, WINDOW_MIN, NOTICE } from '../redux/reducers/window'
+import { windowMax, windowMin, notice } from './sagas/window'
 
 import { CHANGE_KEY, GET_VIDEO, GET_LIVE, SEARCH_VIDEO, CLASSIFY_VIDEO } from '../redux/reducers/dataSource'
 import { changeKey, getLive, getVideo, searchVideo, classifyVideo } from './sagas/dataSource'
@@ -24,7 +24,6 @@ export default function* root() {
 
         takeEvery(WINDOW_MAX, windowMax),
         takeEvery(WINDOW_MIN, windowMin),
-        takeEvery(RESET, resetStore),
         takeLatest(NOTICE, notice),
 
         takeEvery(CHANGE_KEY, changeKey),

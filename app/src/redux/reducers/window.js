@@ -3,7 +3,6 @@ import { createAction, handleActions } from 'redux-actions'
 
 export const WINDOW_MAX = 'WINDOW_MAX'
 export const WINDOW_MIN = 'WINDOW_MIN'
-export const RESET = 'RESET'
 export const CONNECT_SUCCESS = 'CONNECT_SUCCESS'
 export const CONNECT_FAILURE = 'CONNECT_FAILURE'
 export const NOTICE = 'NOTICE'
@@ -30,5 +29,4 @@ export default handleActions({
 
 export const cWindowMax = createAction(WINDOW_MAX)
 export const cWindowMin = createAction(WINDOW_MIN)
-export const cResetStore = createAction('RESET')
 export const cConnectFailure = createAction(CONNECT_FAILURE)
