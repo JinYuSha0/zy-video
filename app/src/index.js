@@ -18,7 +18,7 @@ import Header from './components/header/header'
 import PageIndex from './page/index/index'
 import PagePlayer from './page/player/player'
 
-import { cLogin } from './redux/reducers/user'
+import { cLogin, cGetCurrentUser } from './redux/reducers/user'
 import { cWindowMax, cWindowMin, cConnectFailure } from './redux/reducers/window'
 
 const root = document.getElementById('app')
@@ -28,7 +28,7 @@ export const connectSocket = (active) => {
 
     const { user } = store.getState()
 
-    if(active || user.get('isLogin')) {
+    if(active) {
         const socket = io('http://s.yourhr.com.cn', {
             path: '/ws',
             forceNew: true,
@@ -62,7 +62,11 @@ export const connectSocket = (active) => {
     }
 }
 export const { store, persistor } = createStore(rootReducer, rootSaga, () => {
-    connectSocket()
+    const { user } = store.getState()
+    if(user.get('isLogin')) {
+        connectSocket(true)
+        store.dispatch(cGetCurrentUser())
+    }
     ipcRenderer.send('show-window')
     ipcRenderer.on('message', (e, windowName, channel, params) => {
         windowEvent.emit(channel, windowName, channel, params)

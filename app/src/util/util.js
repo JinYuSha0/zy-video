@@ -86,6 +86,7 @@ export const fetchGet = (url, params, headers = {}, timeout = 5000) => {
             } else if (json.code === 1002) {
                 message.error('登陆过期，请重新登陆。')
                 store.dispatch(cLogout())
+                reject()
             }  else {
                 throw new Error(json.code)
             }
@@ -117,6 +118,7 @@ export const fetchPost = (url, params, headers = {}, timeout = 5000) => {
             } else if (json.code === 1002) {
                 message.error('登陆过期，请重新登陆。')
                 store.dispatch(cLogout())
+                reject()
             } else {
                 throw new Error(json.code)
             }

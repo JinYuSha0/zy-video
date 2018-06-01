@@ -50,8 +50,6 @@ export function* logout({ payload }) {
         }
     }
 
-    //yield persistor.purge()
-    //yield put(cResetStore())
     yield put(cLogoutSuccess())
     electronStore.clear()
 
@@ -63,9 +61,13 @@ export function* logout({ payload }) {
 }
 
 export function* getCurrentUser() {
-    const result = yield call(sGetCurrentUser)
-    if(result.status === 'success') {
-        yield put(cGetCurrentUserSuccess({...result.userInfo}))
+    try {
+        const result = yield call(sGetCurrentUser)
+        if(result.status === 'success') {
+            yield put(cGetCurrentUserSuccess({...result.userInfo}))
+        }
+    } catch (e) {
+
     }
 }
 

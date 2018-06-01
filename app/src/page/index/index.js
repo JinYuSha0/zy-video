@@ -1,12 +1,10 @@
 import './index.less'
 
 import React, { Component } from 'react'
-import { store } from '../../index'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { Card, message, Spin } from 'antd'
 import { recursionGetAttr, getInput } from '../../util/util'
-import { cGetCurrentUser } from '../../redux/reducers/user'
 import { cChangeKey, cGetVideo, cGetLive, cChangeScrollTop } from '../../redux/reducers/dataSource'
 import { cAddPlay, cRemovePlay, cSetPlayList, cPlayVideo, cPlayLive, cPlayMultipleVideo } from '../../redux/reducers/playlist'
 import { sValidatePass } from '../../service/index'
@@ -153,17 +151,6 @@ class Content extends Component {
 }
 
 class PageIndex extends Component {
-    componentWillMount() {
-        const { getCurrentUser } = this.props,
-            { user } = store.getState(),
-            isLogin = user.get('isLogin')
-
-        //todo fix
-        /*if(isLogin) {
-            getCurrentUser()
-        }*/
-    }
-
     render() {
         const { user } = this.props
         return user.get('isLogin') ?
@@ -179,7 +166,6 @@ export default connect(
         changeKey: cChangeKey,
         getVideo: cGetVideo,
         getLive: cGetLive,
-        getCurrentUser: cGetCurrentUser,
         addPlay: cAddPlay,
         removePlay: cRemovePlay,
         setPlayList: cSetPlayList,
