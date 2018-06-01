@@ -1,6 +1,6 @@
 import React from 'react'
 import  { put, call } from 'redux-saga/effects'
-import { store, persistor } from '../../index'
+import { store, persistor, connectSocket } from '../../index'
 import { ipcRenderer } from "electron"
 import { sLogin, sGetCurrentUser } from "../../service"
 import { Modal, Input, message } from 'antd'
@@ -14,9 +14,9 @@ import {
     cCloseLockSuccess,
     cGetCurrentUserSuccess,
     cOpenControllerSuccess,
-    cCloseControllerSuccess,
+    cCloseControllerSuccess, cLogout,
 } from '../../redux/reducers/user'
-import { getInput } from '../../util/util'
+import { jump, getInput } from '../../util/util'
 
 const confirm = Modal.confirm
 
@@ -28,6 +28,7 @@ export function* login ({ payload }) {
             ipcRenderer.send('close-window', windowName)
             yield put(cLoginSuccess(result.data))
             yield put(cGetVideo({active: true}))
+            connectSocket(true)
         } else {
             ipcRenderer.send('return-message', windowName, channel, result.message)
         }
@@ -36,7 +37,19 @@ export function* login ({ payload }) {
     }
 }
 
-export function* logout() {
+export function* logout({ payload: { title, content } }) {
+    if(!!title) {
+        Modal.warning({
+            title: title,
+            content: content,
+            okText: '知道了'
+        })
+    }
+    jump('/')
+    if(!!window._socket && window._socket.connected && !!window._socket.disconnect) {
+        window._socket.disconnect()
+    }
+
     yield persistor.purge()
     yield put(cResetStore())
     yield put(cLogoutSuccess())
@@ -47,9 +60,12 @@ export function* getCurrentUser() {
         const result = yield call(sGetCurrentUser)
         if(result.status === 'success') {
             yield put(cGetCurrentUserSuccess({...result.userInfo}))
+        } else {
+            throw new Error()
         }
     } catch (e) {
-
+        message.error('登陆过期，请重新登陆。')
+        store.dispatch(cLogout())
     }
 }
 

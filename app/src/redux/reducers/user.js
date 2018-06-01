@@ -63,7 +63,7 @@ export default handleActions({
 export const cLogin = createAction(LOGIN, data => data)
 export const cLoginSuccess = createAction(LOGIN_SUCCESS, data => data)
 
-export const cLogout = createAction(LOGOUT)
+export const cLogout = createAction(LOGOUT, msg => msg)
 export const cLogoutSuccess = createAction(LOGOUT_SUCCESS)
 
 export const cGetCurrentUser = createAction(GET_CURRENT_USER)

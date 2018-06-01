@@ -82,9 +82,11 @@ class Player extends Component {
         })
         this.player.on('pause', () => {
             this.danmaku.hide()
+            this.player.status = 'pause'
         })
         this.player.on('play', () => {
             this.danmaku.show()
+            this.player.status = 'play'
         })
 
         if(isVideo) {

@@ -1,5 +1,6 @@
 import { ipcRenderer } from "electron"
 import { electronStore } from '../../config/persistConfig'
+import { Modal } from 'antd'
 
 export function* windowMax() {
     ipcRenderer.send('maximize-window')
@@ -11,4 +12,12 @@ export function* windowMin() {
 
 export function* resetStore () {
     electronStore.clear()
+}
+
+export function* notice ({ payload }) {
+    Modal.info({
+        title: '管理员通知',
+        content: payload,
+        okText: '知道了'
+    })
 }

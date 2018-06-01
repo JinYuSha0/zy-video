@@ -1,9 +1,16 @@
 import  { put, call } from 'redux-saga/effects'
 import { store, history } from '../../index'
 import { jump } from '../../util/util'
-import { cPlayVideoSuccess, cPlayMultipleVideoSuccess, cPlayNextVideoSuccess, cPlayLiveSuccess } from '../../redux/reducers/playlist'
+import {
+    cPlayVideoSuccess,
+    cPlayMultipleVideoSuccess,
+    cPlayNextVideoSuccess,
+    cPlayLiveSuccess,
+    cPlayVideoBySocketSuccess,
+    cClearPlayList,
+} from '../../redux/reducers/playlist'
 import { sGetVideoUrl } from '../../service/index'
-import { message } from 'antd'
+import { message, Modal } from 'antd'
 
 export function* playVideo({ payload: { id, title, pass } }) {
     try {
@@ -78,4 +85,18 @@ export function* playLive({ payload: { title, pass } }) {
         console.log(e)
         message.error('获取直播链接失败!')
     }
+}
+
+export function* playVideoBySocket({ payload: { content, playlist } }) {
+    Modal.confirm({
+        title: '管理员给你推送了一个播放信息',
+        content: content,
+        okText: '播放',
+        cancelText: '取消',
+        onOk: () => {
+            store.dispatch(cClearPlayList())
+            store.dispatch(cPlayVideoBySocketSuccess(playlist))
+            jump('/player')
+        }
+    })
 }

@@ -3,6 +3,7 @@ import { createAction, handleActions } from 'redux-actions'
 
 export const CHANGE_PLAY_TYPE = 'CHANGE_PLAY_TYPE'
 
+export const CLEAR_PLAYLIST = 'CLEAR_PLAYLIST'
 export const ADD_PLAY = 'ADD_PLAY'
 export const REMOVE_PLAY = 'REMOVE_PLAY'
 export const SET_PLAY_LIST = 'SET_PLAY_LIST'
@@ -13,6 +14,9 @@ export const PLAT_MULTIPLE_VIDEO = 'PLAT_MULTIPLE_VIDEO'
 export const PLAT_MULTIPLE_VIDEO_SUCCESS = 'PLAT_MULTIPLE_VIDEO_SUCCESS'
 export const PLAY_NEXT_VIDEO = 'PLAY_NEXT_VIDEO'
 export const PLAY_NEXT_VIDEO_SUCCESS = 'PLAY_NEXT_VIDEO_SUCCESS'
+
+export const PLAY_VIDEO_BY_SOCKET = 'PLAY_VIDEO_BY_SOCKET'
+export const PLAY_VIDEO_BY_SOCKET_SUCCESS = 'PLAY_VIDEO_BY_SOCKET_SUCCESS'
 
 export const PLAY_LIVE = 'PLAY_LIVE'
 export const PLAY_LIVE_SUCCESS = 'PLAY_LIVE_SUCCESS'
@@ -42,6 +46,7 @@ export default handleActions({
         state.set('type', !!payload.type ? payload.type : state.get('type'))
             .set('multiple', !!payload.multiple ? payload.multiple : state.get('multiple'))
     ),
+    [CLEAR_PLAYLIST]: state => state,
     [ADD_PLAY]: (state, {payload}) => (
         state.set('list', state.get('list').push(payload))
     ),
@@ -65,10 +70,14 @@ export default handleActions({
     ),
     [UPDATE_CURRENT_TIME]: (state, { payload: { currentTime, duration } }) => (
         state.set('currentTime', currentTime).set('duration', duration)
+    ),
+    [PLAY_VIDEO_BY_SOCKET_SUCCESS]: (state, { payload }) => (
+        state.merge(Immutable.fromJS(payload))
     )
 }, INITIAL_STATE)
 
 export const cChangePlayType = createAction(CHANGE_PLAY_TYPE, type => type)
+export const cClearPlayList = createAction(CLEAR_PLAYLIST)
 export const cAddPlay = createAction(ADD_PLAY, item => item)
 export const cRemovePlay = createAction(REMOVE_PLAY, id => id)
 export const cSetPlayList = createAction(SET_PLAY_LIST, list => list)
@@ -81,3 +90,4 @@ export const cPlayMultipleVideoSuccess = createAction(PLAT_MULTIPLE_VIDEO_SUCCES
 export const cPlayNextVideo = createAction(PLAY_NEXT_VIDEO)
 export const cPlayNextVideoSuccess = createAction(PLAY_NEXT_VIDEO_SUCCESS, data => data)
 export const cUpdateCurrentTime = createAction(UPDATE_CURRENT_TIME, data => data)
+export const cPlayVideoBySocketSuccess = createAction(PLAY_VIDEO_BY_SOCKET_SUCCESS, playlist => playlist)

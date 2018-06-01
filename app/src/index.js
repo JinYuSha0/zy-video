@@ -19,12 +19,50 @@ import PageIndex from './page/index/index'
 import PagePlayer from './page/player/player'
 
 import { cLogin } from './redux/reducers/user'
-import { cWindowMax, cWindowMin } from './redux/reducers/window'
+import { cWindowMax, cWindowMin, cConnectFailure } from './redux/reducers/window'
 
 const root = document.getElementById('app')
-export const socket = io('http://test.yourhr.com.cn', { path: '/ws', forceNew: true })
 export const history = createHistory()
+export const connectSocket = (active) => {
+    if(!!window._socket && window._socket.connected) return
+
+    const { user } = store.getState()
+
+    if(active || user.get('isLogin')) {
+        const socket = io('http://s.yourhr.com.cn', {
+            path: '/ws',
+            forceNew: true,
+            query: {
+                loginId: unescape(user.get('loginId')),
+                token: user.get('token')
+            }
+        })
+
+        socket.connect()
+
+        socket.on('disconnect', () => {
+            store.dispatch(cConnectFailure())
+        })
+
+        socket.on('action', (data, callback) => {
+            switch (data.type) {
+                case 'WHAT_ARE_YOU_DOING':
+                    let info = {
+                        isPlay: history.location.pathname === '/player',
+                        playlist: store.getState().playlist.toJS()
+                    }
+                    callback(info)
+                    break
+                default:
+                    store.dispatch(data)
+            }
+        })
+
+        window._socket = socket
+    }
+}
 export const { store, persistor } = createStore(rootReducer, rootSaga, () => {
+    connectSocket()
     ipcRenderer.send('show-window')
     ipcRenderer.on('message', (e, windowName, channel, params) => {
         windowEvent.emit(channel, windowName, channel, params)
@@ -62,8 +100,4 @@ windowEvent.on('maximize', () => {
 })
 windowEvent.on('unmaximize', () => {
     store.dispatch(cWindowMin())
-})
-
-socket.on('hello', data => {
-    console.log(data)
 })

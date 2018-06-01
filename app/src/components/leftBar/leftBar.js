@@ -101,7 +101,7 @@ class LeftBar extends Component {
     }
 
     render() {
-        const { leftBar, playlist, removePlay, setPlayList, dataSource } = this.props,
+        const { window, leftBar, playlist, removePlay, setPlayList, dataSource } = this.props,
             isOpen = leftBar.get('isOpen'),
             { classifyList } = this.state,
             action = dataSource.get('action'),
@@ -254,6 +254,12 @@ class LeftBar extends Component {
                                         <Icon type="calendar" style={{ fontSize: 18 }}/>
                                         <span>记录</span>
                                     </li>
+
+                                    <li className={'status-item'}>
+                                        {
+                                            window.get('socketConnect') ? <Badge dot={true} status="processing" title={'连接中'}/> : <Badge dot={true} />
+                                        }
+                                    </li>
                                 </ul>
                         }
 
@@ -267,7 +273,7 @@ class LeftBar extends Component {
 }
 
 export default connect(
-    ({ leftBar, playlist, dataSource }) => ({ leftBar, playlist, dataSource }),
+    ({ window, leftBar, playlist, dataSource }) => ({ window, leftBar, playlist, dataSource }),
     (dispatch) => bindActionCreators({
         open: cOpenLeftBar,
         close: cCloseLeftBar,

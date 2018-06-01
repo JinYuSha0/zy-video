@@ -1,6 +1,7 @@
 import { URL } from '../config/constant'
 import { store } from '../index'
 import { fetchGet, fetchPost, delay } from '../util/util'
+import info from '../../package'
 
 /***
  * 获取所需请求头
@@ -36,7 +37,7 @@ export async function sNeedToUpdate(version) {
  * password 账户密码
  */
 export async function sLogin(params) {
-    const result = await fetchPost(URL + 'adminLoginClient', params)
+    const result = await fetchPost(URL + 'adminLoginClient', { ...params, v: info.version })
     return result.data
 }
 
