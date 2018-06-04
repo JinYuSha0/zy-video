@@ -29,7 +29,7 @@ export const connectSocket = (active) => {
     const { user } = store.getState()
 
     if(active) {
-        const socket = io('http://s.yourhr.com.cn', {
+        const socket = io('http://test.yourhr.com.cn', {
             path: '/ws',
             forceNew: true,
             query: {
