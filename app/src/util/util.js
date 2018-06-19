@@ -14,7 +14,7 @@ export const hasClass = (elem, cls) => {
 
 //移除类名
 export const removeClass = (elem, cls) => {
-    if (hasClass(elem, cls)) {
+    if (!!elem && hasClass(elem, cls)) {
         var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)')
         elem.className = elem.className.replace(reg, '')
     }
@@ -22,7 +22,7 @@ export const removeClass = (elem, cls) => {
 
 //添加类名
 export const addClass = (elem, cls) => {
-    if (!hasClass(elem, cls)) {
+    if (!!elem && !hasClass(elem, cls)) {
         elem.className += " " + cls
     }
 }

@@ -15,8 +15,8 @@ import {
 import { sGetVideoList, sGetLiveList } from '../../service/index'
 import { message } from 'antd'
 
-//列表每15分钟刷新一次
-const TIMEOUT = 1000 * 60 * 15
+//列表每5分钟刷新一次
+const TIMEOUT = 1000 * 60 * 5
 
 /***
  * 是否需要更新数据

@@ -144,11 +144,22 @@ class Player extends Component {
                 }
             })
         } else {
-            //直播断线重连
+            let liveCurrentTime = 0
+
+            //todo 直播断线重连
             this.timer = setInterval(() => {
-                if(this.player.currentTime() === 0) {
-                    this.player.load()
+                const currentTime = this.player.currentTime()
+                if(currentTime > 0 && currentTime === liveCurrentTime) {
+                    if(!!this.player) {
+                        this.componentWillUnmount()
+                    }
+
+                    //重新创建播放实例
+                    console.log('重新创建播放实例')
+
+                    return
                 }
+                liveCurrentTime = currentTime
             }, 2000)
         }
     }
@@ -194,7 +205,7 @@ class Player extends Component {
             this.isOpenController = isOpenController
         }
 
-        if(this.index !== index) {
+        if(!!this.player && !!this.player.src && this.index !== index) {
             this.player.src([{
                 src: url,
                 type: this.options.type
@@ -205,7 +216,7 @@ class Player extends Component {
 
     emitDanmu = () => {
         const content = {
-            text: this.props.user.getIn(['userInfo', 'nickName']) + '正在点播放本视频,严禁录音录像!',
+            text: this.props.user.getIn(['userInfo', 'nickName']) + '正在播放本视频,严禁录音录像!',
             mode: 'ltr',
             style: {
                 lineHeight: getRandom(100, this.danmu.clientHeight) + 'px',
