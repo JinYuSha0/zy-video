@@ -12,9 +12,9 @@ import { Route, Switch } from 'react-router-dom'
 import { ipcRenderer } from 'electron'
 import EventEmitter from 'events'
 import io from 'socket.io-client'
+import { version } from '../package'
 
 import Header from './components/header/header'
-
 import PageIndex from './page/index/index'
 import PagePlayer from './page/player/player'
 
@@ -23,6 +23,28 @@ import { cWindowMax, cWindowMin, cConnectFailure } from './redux/reducers/window
 
 const root = document.getElementById('app')
 export const history = createHistory()
+
+const autoUpdate = async () => {
+    /***
+     * version      最新版本
+     * force        是否强制更新
+     * description  描述
+     * url          下载地址
+     */
+    const data = {
+        version: '1.0.2',
+        force: true,
+        description: ['修复部分显示问题', '直播中断继续播放'],
+        uri: 'http://static.gelantang.com/zy-video/app-1.0.0.zip',
+    }
+
+    if(version !== data.version) {
+        const { UPDATE, update_options } = require('../extra/update/update')
+        //ipcRenderer.send('open-window', UPDATE, update_options)
+        ipcRenderer.send('update', data.uri)
+    }
+}
+
 export const connectSocket = (active) => {
     if(!!window._socket && window._socket.connected) return
 
@@ -61,6 +83,7 @@ export const connectSocket = (active) => {
         window._socket = socket
     }
 }
+
 export const { store, persistor } = createStore(rootReducer, rootSaga, () => {
     const { user } = store.getState()
     if(user.get('isLogin')) {
@@ -72,7 +95,12 @@ export const { store, persistor } = createStore(rootReducer, rootSaga, () => {
         windowEvent.emit(channel, windowName, channel, params)
     })
     render(<App/>, root)
+
+    setTimeout(() => {
+        autoUpdate()
+    }, 0)
 })
+
 class App extends Component {
     render() {
         return (

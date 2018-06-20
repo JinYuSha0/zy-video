@@ -1,11 +1,41 @@
-const { app, BrowserWindow, ipcMain, net } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
+const fs = require('fs')
 const path = require('path')
+const http = require('http')
 const url = require('url')
+const unzipper = require('unzipper')
 
 const DEV = !!process.env.NODE_ENV
 DEV ? require('electron-reload')(__dirname) : null
 
 let mainWindow
+
+const update = (url) => {
+    const appPath = path.resolve(app.getAppPath(), '../app.asar')
+    const tmpPath = path.resolve(app.getPath('temp'), 'app.zip')
+    const asarPath = path.resolve(app.getPath('temp'), 'app.asar')
+
+    http.get(url, (res) => {
+        const file = fs.createWriteStream(tmpPath)
+
+        res.on('data', (chunk) => {
+            file.write(chunk)
+        })
+
+        res.on('end', () => {
+            file.end()
+            fs.accessSync(tmpPath, fs.constants.R_OK)
+            fs.createReadStream(tmpPath)
+                .pipe(unzipper.Parse())
+                .pipe(fs.createWriteStream(asarPath))
+
+            console.log(asarPath)
+
+            //fs.writeFileSync(appPath, fs.readFileSync(tmpPath))
+            //fs.unlinkSync(tmpPath)
+        })
+    })
+}
 
 const createWindow = () => {
     let otherWindow = {}
@@ -27,6 +57,42 @@ const createWindow = () => {
 
     mainWindow.on('unmaximize', () => {
         mainWindow.send('message', null, 'unmaximize')
+    })
+
+    //下载事件
+    mainWindow.webContents.session.on('will-download', (event, item, webContents) => {
+        //文件总大小
+        const totalBytes = item.getTotalBytes()
+
+        //文件保存路径
+        const savePath = path.join(__dirname, `../../${item.getFilename()}`)
+
+        //设置保存路径
+        item.setSavePath(savePath)
+
+        item.on('updated', (event, state) => {
+            switch (state) {
+                case 'interrupted':
+                    console.log('下载中断无法恢复下载')
+                    break
+                case 'progressing':
+                    if(item.isPaused()) {
+                        console.log('下载暂停')
+                    } else {
+                        console.log(item.getReceivedBytes() / totalBytes)
+                    }
+                    break
+            }
+        })
+
+        item.once('done', (event, state) => {
+            if (state === 'completed') {
+                app.dock.downloadFinished(savePath)
+                console.log('下载完成')
+            } else {
+                console.log(`下载失败: ${state}`)
+            }
+        })
     })
 
     //显示
@@ -91,6 +157,12 @@ const createWindow = () => {
     ipcMain.on('return-message', (event, windowName, channel, params) => {
         if(!otherWindow[windowName]) return
         otherWindow[windowName].send('message', channel, params)
+    })
+
+    //更新asar
+    ipcMain.on('update', (event, url) => {
+        //mainWindow.webContents.downloadURL(url)
+        update(url)
     })
 }
 

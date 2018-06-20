@@ -9,6 +9,8 @@ import { cChangeKey, cGetVideo, cGetLive, cChangeScrollTop } from '../../redux/r
 import { cAddPlay, cRemovePlay, cSetPlayList, cPlayVideo, cPlayLive, cPlayMultipleVideo } from '../../redux/reducers/playlist'
 import { sValidatePass } from '../../service/index'
 
+import { version } from '../../../../package'
+
 import VideoList from '../../components/videoList/video/video'
 import LiveList from '../../components/videoList/live/live'
 import LeftBar from '../../components/leftBar/leftBar'
@@ -150,13 +152,23 @@ class Content extends Component {
     }
 }
 
+class Version extends Component {
+    render() {
+        return (
+            <div className={'page-version'}>
+                <p className={'version'}>版本:{version}</p>
+            </div>
+        )
+    }
+}
+
 class PageIndex extends Component {
     render() {
         const { user } = this.props
         return user.get('isLogin') ?
             <Content {...this.props}/>
             :
-            null
+            <Version/>
     }
 }
 
