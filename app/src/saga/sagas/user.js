@@ -38,25 +38,23 @@ export function* login ({ payload }) {
 }
 
 export function* logout({ payload }) {
+    yield put(cLogoutSuccess())
+    electronStore.clear()
+
+    if(!!window._socket && window._socket.connected && !!window._socket.disconnect) {
+        window._socket.disconnect()
+    }
+
     if(!!payload) {
         const { title, content } = payload
-
+        jump('/')
         if(!!title) {
             Modal.warning({
                 title: title,
                 content: content,
-                okText: '知道了'
+                okText: '知道了',
             })
         }
-    }
-
-    yield put(cLogoutSuccess())
-    electronStore.clear()
-
-
-    jump('/')
-    if(!!window._socket && window._socket.connected && !!window._socket.disconnect) {
-        window._socket.disconnect()
     }
 }
 
