@@ -6,7 +6,6 @@ export const update_options = {
     height: 240,
     frame: false,
     resizable: false,
-    closable: false,
     alwaysOnTop: true,
     backgroundColor: '#F7F9FA'
 }
