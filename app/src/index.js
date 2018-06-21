@@ -24,6 +24,7 @@ import { cWindowMax, cWindowMin, cConnectFailure } from './redux/reducers/window
 const root = document.getElementById('app')
 export const history = createHistory()
 
+let updateData = null
 const autoUpdate = async () => {
     /***
      * version      最新版本
@@ -31,7 +32,8 @@ const autoUpdate = async () => {
      * description  描述
      * url          下载地址
      */
-    const data = {
+    const data = updateData =  {
+        oldVersion: version,
         version: '1.0.1',
         force: true,
         description: ['修复部分显示问题', '直播中断继续播放'],
@@ -40,8 +42,7 @@ const autoUpdate = async () => {
 
     if(version !== data.version) {
         const { UPDATE, update_options } = require('../extra/update/update')
-        //ipcRenderer.send('open-window', UPDATE, update_options)
-        ipcRenderer.send('update', data.uri)
+        ipcRenderer.send('open-window', UPDATE, update_options)
     }
 }
 
@@ -124,6 +125,9 @@ class App extends Component {
 }
 
 const windowEvent = new EventEmitter()
+windowEvent.on('get-init', (windowName, channel, params) => {
+    ipcRenderer.send('return-message', windowName, 'init', updateData)
+})
 windowEvent.on('login', (windowName, channel, params) => {
     store.dispatch(cLogin({ windowName, channel, params }))
 })

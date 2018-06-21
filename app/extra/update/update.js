@@ -1,4 +1,4 @@
-export const UPDATE = 'UPDATE'
+export const UPDATE = 'update'
 
 export const update_options = {
     show: true,
@@ -6,6 +6,7 @@ export const update_options = {
     height: 240,
     frame: false,
     resizable: false,
+    closable: false,
     alwaysOnTop: true,
     backgroundColor: '#F7F9FA'
 }

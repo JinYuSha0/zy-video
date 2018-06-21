@@ -1,13 +1,15 @@
-const { app, BrowserWindow, ipcMain, clipboard } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const fs = require('fs')
 const path = require('path')
-const http = require('http')
 const url = require('url')
+const os = require('os')
+const http = require('http')
 
 const DEV = !!process.env.NODE_ENV
 DEV ? require('electron-reload')(__dirname) : null
 
 let mainWindow
+let otherWindow = {}
 
 const randomString = () =>
     Math.random()
@@ -17,7 +19,9 @@ const randomString = () =>
         .join('.')
 
 const update = (url) => {
-    if(DEV) return
+    const isWin = os.platform().toLowerCase().indexOf('win') >= 0
+
+    if(!isWin) return
 
     const randomName = randomString()
     const appPath = path.resolve(app.getAppPath())
@@ -28,8 +32,12 @@ const update = (url) => {
 
     http.get(url, (res) => {
         const file = fs.createWriteStream(tmpPath)
+        const totalBytes= res.headers['content-length']
+        let currentBytes = 0
 
         res.on('data', (chunk) => {
+            currentBytes += chunk.length
+            otherWindow['update'].send('progress', parseInt(currentBytes / totalBytes * 100))
             file.write(chunk)
         })
 
@@ -50,7 +58,6 @@ const update = (url) => {
 }
 
 const createWindow = () => {
-    let otherWindow = {}
     mainWindow = new BrowserWindow({show: false, width: 1235, height: 832, minWidth: 1022, minHeight: 670, frame: false, backgroundColor: '#F6F6F6'})
 
     mainWindow.loadURL(url.format({
@@ -69,42 +76,6 @@ const createWindow = () => {
 
     mainWindow.on('unmaximize', () => {
         mainWindow.send('message', null, 'unmaximize')
-    })
-
-    //下载事件
-    mainWindow.webContents.session.on('will-download', (event, item, webContents) => {
-        //文件总大小
-        const totalBytes = item.getTotalBytes()
-
-        //文件保存路径
-        const savePath = path.join(__dirname, `../../${item.getFilename()}`)
-
-        //设置保存路径
-        item.setSavePath(savePath)
-
-        item.on('updated', (event, state) => {
-            switch (state) {
-                case 'interrupted':
-                    console.log('下载中断无法恢复下载')
-                    break
-                case 'progressing':
-                    if(item.isPaused()) {
-                        console.log('下载暂停')
-                    } else {
-                        console.log(item.getReceivedBytes() / totalBytes)
-                    }
-                    break
-            }
-        })
-
-        item.once('done', (event, state) => {
-            if (state === 'completed') {
-                app.dock.downloadFinished(savePath)
-                console.log('下载完成')
-            } else {
-                console.log(`下载失败: ${state}`)
-            }
-        })
     })
 
     //显示
@@ -141,6 +112,7 @@ const createWindow = () => {
 
         let newWindow = new BrowserWindow(Object.assign({show: false}, option))
         otherWindow[name] = newWindow
+
         newWindow.loadURL(url.format({
             pathname: path.join(__dirname, './extra/' + name + '/' + name + '.html'),
             protocol: 'file:',
@@ -156,6 +128,7 @@ const createWindow = () => {
 
     //关闭窗口
     ipcMain.on('close-window', (event, name) => {
+        if(!otherWindow[name]) return
         otherWindow[name].close()
         otherWindow[name] = null
     })
@@ -169,6 +142,17 @@ const createWindow = () => {
     ipcMain.on('return-message', (event, windowName, channel, params) => {
         if(!otherWindow[windowName]) return
         otherWindow[windowName].send('message', channel, params)
+    })
+
+    //显示提示
+    ipcMain.on('show-message', (event, windowName, options) => {
+        let window
+        if(!windowName) {
+            window = mainWindow
+        } else {
+            window = otherWindow[windowName]
+        }
+        dialog.showMessageBox(window, options)
     })
 
     //更新asar

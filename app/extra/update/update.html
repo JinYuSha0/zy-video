@@ -6,17 +6,107 @@
     <link rel="stylesheet" type="text/css" href="update.css">
 </head>
 <body>
+
 <div class="update-layout">
     <span class="close"></span>
 
+    <h3 class="title">发现新版本</h3>
+
+    <p class="version-info"></p>
+
+    <div class="description"></div>
+
+    <div class="progress-wrapper">
+        <div class="progress-bar">
+            <div class="progress-bg"></div>
+        </div>
+        <span class="progress-text">0%</span>
+    </div>
+
+    <button class="button">更新</button>
 </div>
 
 <script>
     const windowName = 'update',
         { ipcRenderer } = require('electron'),
-        close = document.querySelector('.close')
+        close = document.querySelector('.close'),
+        button = document.querySelector('.button'),
+        layout = document.querySelector('.update-layout'),
+        versionInfo = document.querySelector('.version-info'),
+        descriptionWrapper = document.querySelector('.description'),
+        progressBg = document.querySelector('.progress-bg'),
+        progressText = document.querySelector('.progress-text')
 
+    let Data = null, isUpdating = false
 
+    ipcRenderer.send('message', windowName, 'get-init', null)
+    ipcRenderer.on('message', (event, channel, data) => {
+        switch (channel) {
+            case 'init':
+                Data = data;
+                layout.setAttribute('style', 'display: block');
+                const { oldVersion, version, description } = data
+                versionInfo.innerHTML = `<span class="old-version">当前版本: ${oldVersion}</span><span class="new-version">最新版本: <span class="version">${version}</span></span>`
+                let des = ""
+                for (let i=0; i<description.length; i++) {
+                    des += `<p class="item">${(i+1) + '.' + description[i]}</p>`
+                }
+                descriptionWrapper.innerHTML = des
+                break
+        }
+    })
+    ipcRenderer.on('progress', (event, progress) => {
+        progressText.innerHTML = `${progress}%`
+        progressBg.setAttribute('style', `width: ${progress}%`);
+    })
+
+    const util = {
+        hasClass: (elem, cls) => {
+            if(elem) {
+                return elem.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
+            } else {
+                return false
+            }
+        },
+        removeClass: (elem, cls) => {
+            if (util.hasClass(elem, cls)) {
+                const reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
+                elem.className = elem.className.replace(reg, '');
+            }
+        },
+        addClass: (elem, cls) => {
+            if (!util.hasClass(elem, cls)) {
+                elem.className += " " + cls;
+            }
+        }
+    }
+
+    close.addEventListener('click', (e) => {
+        if(!Data) return
+        if(isUpdating) {
+            ipcRenderer.send('show-message', windowName, {
+                title: '无法关闭',
+                message: '正在更新'
+            })
+            return
+        }
+
+        if(Data.force) {
+            ipcRenderer.send('show-message', windowName, {
+                title: '无法关闭',
+                message: '该版本为强制更新'
+            })
+            return
+        }
+        ipcRenderer.send('close-window', windowName)
+    })
+
+    button.addEventListener('click', (e) => {
+        if(isUpdating || !Data) return
+        util.addClass(button, 'btn-disabled')
+        isUpdating = true
+        ipcRenderer.send('update', Data.uri)
+    })
 </script>
 </body>
 </html>

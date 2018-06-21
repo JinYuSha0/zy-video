@@ -97,6 +97,10 @@ export default class videoList extends Component {
             isDown = scrollTop - _scrollTop > 0,
             isLoad = scrollHeight - clientHeight - scrollTop <= 100
 
+        if(!action) {
+            changeScrollTop(scrollTop)
+        }
+
         if(isDown && isLoad) {
             //fix 全部加载后向上滑动也会触发
             const { list, dataSource } = this.props,
@@ -116,10 +120,6 @@ export default class videoList extends Component {
 
             this.props.getVideo({ active: true, add: true })
         }
-
-        if(!action) {
-            changeScrollTop(scrollTop)
-        }
     }
 
     render() {
@@ -135,8 +135,8 @@ export default class videoList extends Component {
                         this.columnCount = columnCount
                         return (
                             <Grid
+                                //scrollTop={!!action ? null : scrollTop}
                                 onScroll={this.onScroll}
-                                scrollTop={!!action ? null : scrollTop}
                                 height={height}
                                 width={width}
                                 rowHeight={rowHeight}
