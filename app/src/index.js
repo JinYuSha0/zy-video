@@ -32,10 +32,10 @@ const autoUpdate = async () => {
      * url          下载地址
      */
     const data = {
-        version: '1.0.2',
+        version: '1.0.1',
         force: true,
         description: ['修复部分显示问题', '直播中断继续播放'],
-        uri: 'http://static.gelantang.com/zy-video/app-1.0.0.zip',
+        uri: 'http://static.gelantang.com/zy-video/43ada2038',
     }
 
     if(version !== data.version) {

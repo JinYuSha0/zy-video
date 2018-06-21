@@ -10,7 +10,7 @@
     "startWin": "SET NODE_ENV=development && npm-run-all --parallel dev serve",
     "build": "webpack --mode production --config webpack.pro.config.js",
     "packager:mac": "electron-packager ./app zy-video --darwin --out ./release --arch=x64 --overwrite --app-version=1.0.0 --electron-version=1.8.4 --ignore=src --asar --icon=./app/src/static/favicon.icns",
-    "packager:win": "electron-packager ./app zy-video --win --out ./release --arch=x64 --overwrite --app-version=1.0.0 --electron-version=1.8.4 --ignore=src --asar --icon=./app/src/static/favicon.ico",
+    "packager:win": "electron-packager ./app zy-video --win --out ./release --arch=x64 --overwrite --app-version=1.0.0 --electron-version=1.8.4 --ignore=src --ignore==updater.exe --extra-resource=updater.exe --asar --icon=./app/src/static/favicon.ico",
     "release:mac": "npm-run-all build packager:mac",
     "release:win": "npm-run-all build packager:win"
   },
@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "antd": "^3.5.3",
+    "electron-store": "^2.0.0",
     "history": "^4.7.2",
     "immutable": "^3.8.2",
     "moment": "^2.22.1",
@@ -58,7 +59,6 @@
     "redux-persist-transform-immutable": "^5.0.0",
     "redux-saga": "^0.16.0",
     "redux-thunk": "^2.2.0",
-    "socket.io-client": "^2.1.1",
-    "unzipper": "^0.8.14"
+    "socket.io-client": "^2.1.1"
   }
 }

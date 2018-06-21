@@ -1,19 +1,30 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron')
+const { app, BrowserWindow, ipcMain, clipboard } = require('electron')
 const fs = require('fs')
 const path = require('path')
 const http = require('http')
 const url = require('url')
-const unzipper = require('unzipper')
 
 const DEV = !!process.env.NODE_ENV
 DEV ? require('electron-reload')(__dirname) : null
 
 let mainWindow
 
+const randomString = () =>
+    Math.random()
+        .toString(36)
+        .substring(7)
+        .split('')
+        .join('.')
+
 const update = (url) => {
-    const appPath = path.resolve(app.getAppPath(), '../app.asar')
-    const tmpPath = path.resolve(app.getPath('temp'), 'app.zip')
-    const asarPath = path.resolve(app.getPath('temp'), 'app.asar')
+    if(DEV) return
+
+    const randomName = randomString()
+    const appPath = path.resolve(app.getAppPath())
+    const downloadPath = path.resolve(appPath, `../app.${randomName}`)
+    const tmpPath = path.resolve(app.getPath('temp'), randomName)
+    const updaterPath = path.resolve(appPath, '../updater.exe')
+    const exePath = path.resolve(appPath, '../../zy-video.exe')
 
     http.get(url, (res) => {
         const file = fs.createWriteStream(tmpPath)
@@ -25,14 +36,15 @@ const update = (url) => {
         res.on('end', () => {
             file.end()
             fs.accessSync(tmpPath, fs.constants.R_OK)
-            fs.createReadStream(tmpPath)
-                .pipe(unzipper.Parse())
-                .pipe(fs.createWriteStream(asarPath))
+            fs.writeFileSync(downloadPath, fs.readFileSync(tmpPath))
+            fs.unlinkSync(tmpPath)
 
-            console.log(asarPath)
-
-            //fs.writeFileSync(appPath, fs.readFileSync(tmpPath))
-            //fs.unlinkSync(tmpPath)
+            //运行更新助手(旧版asar的位置、新版asar的位置、程序的位置)
+            app.relaunch({
+                args: [appPath, downloadPath, exePath],
+                execPath: updaterPath
+            })
+            app.exit(0)
         })
     })
 }
@@ -161,7 +173,6 @@ const createWindow = () => {
 
     //更新asar
     ipcMain.on('update', (event, url) => {
-        //mainWindow.webContents.downloadURL(url)
         update(url)
     })
 }
