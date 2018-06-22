@@ -19,9 +19,28 @@ const randomString = () =>
         .join('.')
 
 const update = (url) => {
+    const isUrl = /^https?:\/\//.test(url)
     const isWin = os.platform().toLowerCase().indexOf('win') >= 0
 
-    if(!isWin) return
+    if(!isWin) {
+        dialog.showMessageBox(otherWindow['update'], {
+            title: 'window之外的系统暂不支持更新',
+            message: `os:${os.platform()}`
+        }, () => {
+            otherWindow['update'].close()
+        })
+        return
+    }
+
+    if(!isUrl) {
+        dialog.showMessageBox(otherWindow['update'], {
+            title: '更新资源路径无效',
+            message: `uri:${url}`
+        }, () => {
+            otherWindow['update'].close()
+        })
+        return
+    }
 
     const randomName = randomString()
     const appPath = path.resolve(app.getAppPath())
@@ -54,7 +73,16 @@ const update = (url) => {
             })
             app.exit(0)
         })
+    }).on('error', (err) => {
+        dialog.showMessageBox(otherWindow['update'], {
+            title: '下载更新资源失败',
+            message: `uri:${url}, message:` + err.message
+        }, () => {
+            otherWindow['update'].close()
+        })
     })
+
+
 }
 
 const createWindow = () => {

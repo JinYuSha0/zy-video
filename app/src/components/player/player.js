@@ -55,19 +55,21 @@ class Player extends Component {
         super(props)
         this.netStatus = true
         this.offlineTime = null
+        this.content1 = this.props.user.getIn(['userInfo', 'nickName']) + '正在播放本视频,严禁录音录像!'
+        this.content2 = '网络中断,正在尝试重新连接.'
+        this.content3 = '网络连接成功,马上开始播放.'
+        this.danmuContent = this.content1
     }
 
     componentDidMount() {
         const { user, playlist, updateCurrentTime } = this.props,
             isVideo = playlist.get('type') === 'video',
             isOpenController = this.isOpenController = user.get('controller'),
-            isOpenFeedBack = user.get('feedback'),
             url = playlist.get('url'),
             options = this.options = isVideo ?  VIDEO_OPTIONS : LIVE_OPTIONS,
             index = this.index =  playlist.get('index'),
             currentTime = playlist.get('currentTime'),
-            multiple = playlist.get('multiple'),
-            danmaku = this.danmaku = new Danmaku()
+            multiple = playlist.get('multiple')
 
         if(!isOpenController) {
             addClass(this.playerDOM, 'hide-custom-controls')
@@ -75,11 +77,6 @@ class Player extends Component {
 
         window.addEventListener('resize', this.danmuResize)
         this.createPlayer(url, options)
-
-        danmaku.init({
-            container: this.danmu
-        })
-        this.danmuTimer = setInterval(this.emitDanmu, 3*60*1000)
 
         if(isVideo) {
             this.player.currentTime(currentTime)
@@ -99,15 +96,13 @@ class Player extends Component {
                 if(multiple && index < size) {
                     this.props.playNextVideo()
                 } else {
-                    if(isOpenFeedBack) {
-                        try {
-                            const result = await sSendDingText({ remark: '点播已经结束,请安排后续工作' })
-                            if(result.status !== 'success') {
-                                throw new Error()
-                            }
-                        } catch (e) {
-                            message.error('发送反馈失败!')
+                    try {
+                        const result = await sSendDingText({ remark: '点播已经结束,请安排后续工作' })
+                        if(result.status !== 'success') {
+                            throw new Error()
                         }
+                    } catch (e) {
+                        message.error('发送反馈失败!')
                     }
 
                     if(!!this.timer) {
@@ -226,9 +221,17 @@ class Player extends Component {
         this.danmu = document.createElement('div')
         this.danmu.setAttribute('class', 'danmu')
         document.getElementById('zy-player').appendChild(this.danmu)
+
+        const danmaku = this.danmaku = new Danmaku()
+        danmaku.init({
+            container: this.danmu
+        })
+        this.danmuTimer = setInterval(this.emitDanmu, 3*60*1000)
     }
 
-    emitDanmu = (text = this.props.user.getIn(['userInfo', 'nickName']) + '正在播放本视频,严禁录音录像!') => {
+    emitDanmu = (text = this.danmuContent) => {
+        if(!this.danmaku) return
+
         const content = {
             text: text,
             mode: 'ltr',
@@ -249,7 +252,8 @@ class Player extends Component {
         setTimeout(() => {
             if(this.netStatus) return
             this.offlineTime = new Date().getTime()
-            this.emitDanmu('网络中断,正在尝试重新连接.')
+            this.danmuContent = this.content2
+            this.emitDanmu(this.content2)
         }, 3000)
     }
 
@@ -260,6 +264,12 @@ class Player extends Component {
                 this.player.dispose()
                 this.player = null
                 console.warn('摧毁播放实例')
+            }
+
+            if(!!this.danmaku) {
+                window.removeEventListener('resize', this.danmuResize)
+                this.danmaku.destroy()
+                this.danmaku = null
             }
         }
 
@@ -277,8 +287,9 @@ class Player extends Component {
         this.zyPlayer.insertBefore(player, this.zyPlayer.childNodes[0])
 
         setTimeout(async () => {
-            this.emitDanmu('网络连接成功,马上开始播放.')
+            this.danmuContent = this.content1
             this.createPlayer(url, options)
+            this.emitDanmu(this.content3)
             if(!!this.offlineTime) {
                 await sSendDingText({ remark: `${moment(this.offlineTime).format('LLLL')} 直播出现网络波动` })
             }
@@ -287,6 +298,7 @@ class Player extends Component {
     }
 
     danmuResize = () => {
+        if(!this.danmaku) return
         this.danmaku.resize()
     }
 

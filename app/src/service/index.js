@@ -88,6 +88,9 @@ export async function sValidatePass(params) {
  * @returns {Promise<void>}
  */
 export async function sSendDingText(params) {
+    const { user } = store.getState(),
+        isOpenFeedBack = user.get('feedback')
+    if(!isOpenFeedBack) return
     const result = await fetchPost(URL + 'sendDingText', params, getHeaders())
     return result.data
 }

@@ -105,7 +105,7 @@
         if(isUpdating || !Data) return
         util.addClass(button, 'btn-disabled')
         isUpdating = true
-        ipcRenderer.send('update', Data.uri)
+        ipcRenderer.send('update', Data.url)
     })
 </script>
 </body>
