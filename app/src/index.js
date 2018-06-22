@@ -28,8 +28,6 @@ export const history = createHistory()
 
 let updateData = null
 const autoUpdate = async () => {
-    if(DEV) return
-
     const { UPDATE, update_options } = require('../extra/update/update'),
         { status, needUpdate, data } = await sNeedUpdate({ version })
     if(status === 'success') {
