@@ -9,10 +9,12 @@
     "start": "NODE_ENV=development npm-run-all --parallel dev serve",
     "startWin": "SET NODE_ENV=development && npm-run-all --parallel dev serve",
     "build": "webpack --mode production --config webpack.pro.config.js",
-    "packager:mac": "electron-packager ./app zy-video --darwin --out ./release --arch=x64 --overwrite --app-version=1.0.0 --electron-version=1.8.4 --ignore=src --asar --icon=./app/src/static/favicon.icns",
-    "packager:win": "electron-packager ./app zy-video --win --out ./release --arch=x64 --overwrite --app-version=1.0.0 --electron-version=1.8.4 --ignore=src --ignore==updater.exe --extra-resource=updater.exe --asar --icon=./app/src/static/favicon.ico",
+    "packager:mac": "electron-packager ./app zy-video --darwin --out ./release --arch=x64 --overwrite --app-version=1.0.0 --electron-version=3.0.0-beta.1 --ignore=src --asar --icon=./app/src/static/favicon.icns",
+    "packager:winx64": "electron-packager ./app zy-video --win --out ./release --arch=x64 --overwrite --app-version=1.0.0 --electron-version=3.0.0-beta.1 --ignore=src --ignore==updater.exe --extra-resource=updater.exe --asar --icon=./app/src/static/favicon.ico",
+    "packager:winx86": "electron-packager ./app zy-video --win --out ./release --arch=ia32 --overwrite --app-version=1.0.0 --electron-version=3.0.0-beta.1 --ignore=src --ignore==updater.exe --extra-resource=updater.exe --asar --icon=./app/src/static/favicon.ico",
     "release:mac": "npm-run-all build packager:mac",
-    "release:win": "npm-run-all build packager:win"
+    "release:winx64": "npm-run-all build packager:win:winx64",
+    "release:winx86": "npm-run-all build packager:win:winx86"
   },
   "author": "sjy",
   "devDependencies": {
@@ -26,7 +28,7 @@
     "babel-preset-stage-0": "^6.24.1",
     "clean-webpack-plugin": "^0.1.19",
     "css-loader": "^0.28.11",
-    "electron": "^1.8.4",
+    "electron": "^3.0.0-beta.1",
     "electron-packager": "^12.0.1",
     "electron-reload": "^1.2.2",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
@@ -45,7 +47,7 @@
     "electron-store": "^2.0.0",
     "history": "^4.7.2",
     "immutable": "^3.8.2",
-    "moment": "^2.22.1",
+    "moment": "^2.22.2",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "react-redux": "^5.0.7",

@@ -1,5 +1,7 @@
 import './player.less'
 
+import moment from 'moment'
+import 'moment/locale/zh-cn'
 import { store } from '../../index'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -52,6 +54,7 @@ class Player extends Component {
     constructor(props) {
         super(props)
         this.netStatus = true
+        this.offlineTime = null
     }
 
     componentDidMount() {
@@ -70,12 +73,13 @@ class Player extends Component {
             addClass(this.playerDOM, 'hide-custom-controls')
         }
 
+        window.addEventListener('resize', this.danmuResize)
+        this.createPlayer(url, options)
+
         danmaku.init({
             container: this.danmu
         })
         this.danmuTimer = setInterval(this.emitDanmu, 3*60*1000)
-
-        this.createPlayer(url, options)
 
         if(isVideo) {
             this.player.currentTime(currentTime)
@@ -163,6 +167,7 @@ class Player extends Component {
         }
 
         if(!!this.danmaku) {
+            window.removeEventListener('resize', this.danmuResize)
             this.danmaku.destroy()
             this.danmaku = null
         }
@@ -207,7 +212,7 @@ class Player extends Component {
             this.player.play()
         })
         this.player.on('fullscreenchange', () => {
-            this.danmaku.resize();
+            this.danmuResize()
         })
         this.player.on('pause', () => {
             this.danmaku.hide()
@@ -217,6 +222,10 @@ class Player extends Component {
             this.danmaku.show()
             this.player.status = 'play'
         })
+
+        this.danmu = document.createElement('div')
+        this.danmu.setAttribute('class', 'danmu')
+        document.getElementById('zy-player').appendChild(this.danmu)
     }
 
     emitDanmu = (text = this.props.user.getIn(['userInfo', 'nickName']) + '正在播放本视频,严禁录音录像!') => {
@@ -226,7 +235,8 @@ class Player extends Component {
             style: {
                 lineHeight: getRandom(100, this.danmu.clientHeight) + 'px',
                 fontSize: '28px',
-                color: '#ffffff'
+                fontWeight: 'bold',
+                color: '#108ee9'
             },
         }
 
@@ -238,6 +248,7 @@ class Player extends Component {
 
         setTimeout(() => {
             if(this.netStatus) return
+            this.offlineTime = new Date().getTime()
             this.emitDanmu('网络中断,正在尝试重新连接.')
         }, 3000)
     }
@@ -265,18 +276,24 @@ class Player extends Component {
         player.setAttribute('controls', true)
         this.zyPlayer.insertBefore(player, this.zyPlayer.childNodes[0])
 
-        setTimeout(() => {
+        setTimeout(async () => {
             this.emitDanmu('网络连接成功,马上开始播放.')
             this.createPlayer(url, options)
+            if(!!this.offlineTime) {
+                await sSendDingText({ remark: `${moment(this.offlineTime).format('LLLL')} 直播出现网络波动` })
+            }
             console.warn('新建播放实例')
         }, 0)
+    }
+
+    danmuResize = () => {
+        this.danmaku.resize()
     }
 
     render() {
         return (
             <div className="zy-player" ref={zyPlayer => this.zyPlayer = zyPlayer}>
                 <video ref={player => this.playerDOM = player} id="zy-player" className="video-js vjs-default-skin vjs-big-play-centered" controls/>
-                <div className={'danmu'} ref={danmu => this.danmu = danmu}></div>
             </div>
         )
     }

@@ -13,6 +13,7 @@ import { ipcRenderer } from 'electron'
 import EventEmitter from 'events'
 import io from 'socket.io-client'
 import { version } from '../package'
+import { message } from 'antd'
 
 import Header from './components/header/header'
 import PageIndex from './page/index/index'
@@ -20,29 +21,24 @@ import PagePlayer from './page/player/player'
 
 import { cLogin, cGetCurrentUser } from './redux/reducers/user'
 import { cWindowMax, cWindowMin, cConnectFailure } from './redux/reducers/window'
+import { sNeedUpdate } from './service'
 
 const root = document.getElementById('app')
 export const history = createHistory()
 
 let updateData = null
 const autoUpdate = async () => {
-    /***
-     * version      最新版本
-     * force        是否强制更新
-     * description  描述
-     * url          下载地址
-     */
-    const data = updateData =  {
-        oldVersion: version,
-        version: '1.0.1',
-        force: true,
-        description: ['修复部分显示问题', '直播中断继续播放'],
-        uri: 'http://static.gelantang.com/zy-video/43ada2038',
-    }
+    if(DEV) return
 
-    if(version !== data.version) {
-        const { UPDATE, update_options } = require('../extra/update/update')
-        ipcRenderer.send('open-window', UPDATE, update_options)
+    const { UPDATE, update_options } = require('../extra/update/update'),
+        { status, needUpdate, data } = await sNeedUpdate({ version })
+    if(status === 'success') {
+        if(needUpdate) {
+            updateData = Object.assign(data, { oldVersion: version })
+            ipcRenderer.send('open-window', UPDATE, update_options)
+        }
+    } else {
+        message.error('验证更新失败!')
     }
 }
 

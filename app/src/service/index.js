@@ -15,22 +15,6 @@ function getHeaders() {
 }
 
 /***
- * 是否需要更新
- */
-export async function sNeedToUpdate(version) {
-    return {
-        status: 'success',
-        needUpdate: true,
-        newVersion: '1.0.1',
-        versionInfo: [
-            '更新了列表播放',
-            '修复了少量bug',
-            '优化部分性能',
-        ]
-    }
-}
-
-/***
  * 客户端登录
  * @param params
  * phone    账户
@@ -105,5 +89,15 @@ export async function sValidatePass(params) {
  */
 export async function sSendDingText(params) {
     const result = await fetchPost(URL + 'sendDingText', params, getHeaders())
+    return result.data
+}
+
+/***
+ * 验证是否需要更新
+ * @param params version
+ * @returns {Promise.<void>}
+ */
+export async function sNeedUpdate(params) {
+    const result = await fetchPost(URL + 'isUpdate', params, getHeaders())
     return result.data
 }
