@@ -67,11 +67,13 @@ const update = (url) => {
             fs.unlinkSync(tmpPath)
 
             //运行更新助手(旧版asar的位置、新版asar的位置、程序的位置)
-            app.relaunch({
-                args: [appPath, downloadPath, exePath],
-                execPath: updaterPath
-            })
-            app.exit(0)
+            setTimeout(() => {
+                app.relaunch({
+                    args: [appPath, downloadPath, exePath],
+                    execPath: updaterPath
+                })
+                app.exit(0)
+            }, 2000)
         })
     }).on('error', (err) => {
         dialog.showMessageBox(otherWindow['update'], {

@@ -26,13 +26,12 @@ import { sNeedUpdate } from './service'
 const root = document.getElementById('app')
 export const history = createHistory()
 
-let updateData = null
 const autoUpdate = async () => {
     const { UPDATE, update_options } = require('../extra/update/update'),
         { status, needUpdate, data } = await sNeedUpdate({ version })
     if(status === 'success') {
         if(needUpdate) {
-            updateData = Object.assign(data, { oldVersion: version })
+            window.updateData = Object.assign(data, { oldVersion: version })
             ipcRenderer.send('open-window', UPDATE, update_options)
         }
     } else {
@@ -120,7 +119,7 @@ class App extends Component {
 
 const windowEvent = new EventEmitter()
 windowEvent.on('get-init', (windowName, channel, params) => {
-    ipcRenderer.send('return-message', windowName, 'init', updateData)
+    ipcRenderer.send('return-message', windowName, 'init', window.updateData)
 })
 windowEvent.on('login', (windowName, channel, params) => {
     store.dispatch(cLogin({ windowName, channel, params }))

@@ -1,13 +1,14 @@
 import './index.less'
 
+import { ipcRenderer } from 'electron'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { Card, message, Spin } from 'antd'
+import { Card, message, Spin, Divider } from 'antd'
 import { recursionGetAttr, getInput } from '../../util/util'
 import { cChangeKey, cGetVideo, cGetLive, cChangeScrollTop } from '../../redux/reducers/dataSource'
 import { cAddPlay, cRemovePlay, cSetPlayList, cPlayVideo, cPlayLive, cPlayMultipleVideo } from '../../redux/reducers/playlist'
-import { sValidatePass } from '../../service/index'
+import { sValidatePass, sNeedUpdate } from '../../service/index'
 
 import { version } from '../../../../package'
 
@@ -153,10 +154,28 @@ class Content extends Component {
 }
 
 class Version extends Component {
+    fix = async () => {
+        const { UPDATE, update_options } = require('../../../extra/update/update'),
+            { status, needUpdate, data } = await sNeedUpdate()
+
+        if(status === 'success') {
+            if(needUpdate) {
+                window.updateData = Object.assign(data, { oldVersion: '修复', force: false })
+                ipcRenderer.send('open-window', UPDATE, update_options)
+            }
+        } else {
+            message.error('获取修复信息失败!')
+        }
+    }
+
     render() {
         return (
             <div className={'page-version'}>
-                <p className={'version'}>版本:{version}</p>
+                <div className={'footer'}>
+                    <p className={'version'}>版本:{version}</p>
+                    <Divider style={{top: '4px'}} type="vertical" />
+                    <p className={'fix'} onClick={this.fix}>修复</p>
+                </div>
             </div>
         )
     }

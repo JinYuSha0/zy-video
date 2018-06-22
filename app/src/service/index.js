@@ -101,6 +101,6 @@ export async function sSendDingText(params) {
  * @returns {Promise.<void>}
  */
 export async function sNeedUpdate(params) {
-    const result = await fetchPost(URL + 'isUpdate', params, getHeaders())
+    const result = await fetchPost(URL + 'isUpdate', params)
     return result.data
 }
