@@ -6,3 +6,7 @@
 - 开始(window) `npm run startWin`
 - 发布windows版本 `npm run release:win`
 - 发布mac os版本 `npm run release:mac`
+
+![update][1]
+
+  [1]: http://oh1hf3m41.bkt.clouddn.com/update.gif
