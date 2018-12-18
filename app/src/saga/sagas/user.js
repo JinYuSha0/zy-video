@@ -16,14 +16,15 @@ import {
     cOpenControllerSuccess,
     cCloseControllerSuccess, cLogout,
 } from '../../redux/reducers/user'
-import { jump, getInput } from '../../util/util'
+import { jump, getInput, getMachineCode } from '../../util/util'
 
 const confirm = Modal.confirm
 
 export function* login ({ payload }) {
     const { windowName, channel, params } = payload
+    const machineCode = yield getMachineCode()
     try {
-        const result = yield call(sLogin, params)
+        const result = yield call(sLogin, { ...params, 'machine_code': machineCode })
         if(result.status === 'success') {
             ipcRenderer.send('close-window', windowName)
             yield put(cLoginSuccess(result.data))

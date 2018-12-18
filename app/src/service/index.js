@@ -2,6 +2,7 @@ import { URL } from '../config/constant'
 import { store } from '../index'
 import { fetchGet, fetchPost, delay } from '../util/util'
 import info from '../../package'
+import { getMachineCode } from '../util/util'
 
 /***
  * 获取所需请求头
@@ -60,7 +61,8 @@ export async function sGetLiveList() {
  * pass 视频密码
  */
 export async function sGetVideoUrl(params) {
-    const result = await fetchPost(URL + 'getPullUrl', params, getHeaders())
+    const machineCode = await getMachineCode()
+    const result = await fetchPost(URL + 'getPullUrl', { ...params, 'machine_code': machineCode }, getHeaders())
     return result.data
 }
 

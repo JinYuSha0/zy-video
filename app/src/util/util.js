@@ -3,6 +3,8 @@ import { store, history } from '../index'
 import { Modal, Input, message } from 'antd'
 import crypto from 'crypto'
 import { cLogout } from '../redux/reducers/user'
+import os from 'os'
+import command from 'system-basic-command'
 
 export const hasClass = (elem, cls) => {
     if(elem) {
@@ -261,3 +263,35 @@ export const getRandom = (min, max) =>{
     re = Math.max(Math.min(re, max), min)
     return re
 }
+
+// 获取当前网卡mac地址
+const getCurrNetworkCardMacAddress = () => {
+    const interFaces = os.networkInterfaces()
+    return new Promise((resolve, reject) => {
+        try {
+            for (let i in interFaces) {
+                interFaces[i].forEach(interFace => {
+                    if (interFace.family.toLowerCase() === 'ipv4' && interFace.address !== '127.0.0.1') {
+                        command.getGateway(i, (gateway) => {
+                            if (gateway) resolve(interFace.mac)
+                        })
+                    }
+                })
+            }
+        } catch (err) {
+            reject(err)
+        }
+    })
+}
+
+// 获取机器码
+export const getMachineCode = async () => {
+    const macAddress = await getCurrNetworkCardMacAddress()
+    const cpuModel = os.cpus()[0].model
+    const md5 = crypto.createHash('md5')
+    md5.update(macAddress + cpuModel + 'zyjy8410')
+    return md5.digest('hex')
+}
+
+
+
