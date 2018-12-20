@@ -1,6 +1,6 @@
 {
   "name": "zy-video",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "中宜教育视频系统",
   "main": "./app/main.js",
   "scripts": {
