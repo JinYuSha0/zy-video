@@ -1,10 +1,12 @@
+import os from 'os'
+import { ipcRenderer } from "electron"
+import iconv from  'iconv-lite'
+import { exec } from 'child_process'
 import React from 'react'
 import { store, history } from '../index'
 import { Modal, Input, message } from 'antd'
 import crypto from 'crypto'
 import { cLogout } from '../redux/reducers/user'
-import os from 'os'
-import command from 'system-basic-command'
 
 export const hasClass = (elem, cls) => {
     if(elem) {
@@ -266,18 +268,43 @@ export const getRandom = (min, max) =>{
 
 // 获取当前网卡mac地址
 const getCurrNetworkCardMacAddress = () => {
-    const interFaces = os.networkInterfaces()
     return new Promise((resolve, reject) => {
         try {
-            for (let i in interFaces) {
-                interFaces[i].forEach(interFace => {
-                    if (interFace.family.toLowerCase() === 'ipv4' && interFace.address !== '127.0.0.1') {
-                        command.getGateway(i, (gateway) => {
-                            if (gateway) resolve(interFace.mac)
-                        })
+            const interFaces = os.networkInterfaces()
+            const cmd = exec(`ipconfig/all`, { encoding: 'buffer' })
+            cmd.stderr.on('data', (err) => {
+                reject(err)
+            })
+            cmd.stdout.on('data', (data) => {
+                const info = iconv.decode(data, 'cp936')
+                const infos = info.split(/\r\n\r\n/)
+                const res = infos.map((info, index) => {
+                    if (index === 0 || index % 2 === 0) {
+                        return null
+                    } else {
+                        return {
+                            name: infos[index - 1],
+                            content: info
+                        }
                     }
-                })
-            }
+                }).filter(i => i !== null)
+                for (let i in interFaces) {
+                    interFaces[i].forEach(interFace => {
+                        if (interFace.family.toLowerCase() === 'ipv4' && interFace.address !== '127.0.0.1') {
+                            const realMac = interFace.mac.split(':').join('-')
+                            res.forEach(v => {
+                                if (
+                                    v.content.match(realMac.toUpperCase())
+                                    && v.name.match('以太网')
+                                    && v.content.match(/.*\r\n/)[0].split(':')[1].match(/\S/)
+                                ) {
+                                    resolve(interFace.mac)
+                                }
+                            })
+                        }
+                    })
+                }
+            })
         } catch (err) {
             reject(err)
         }
@@ -285,13 +312,26 @@ const getCurrNetworkCardMacAddress = () => {
 }
 
 // 获取机器码
-export const getMachineCode = async () => {
-    const macAddress = await getCurrNetworkCardMacAddress()
-    const cpuModel = os.cpus()[0].model
-    const md5 = crypto.createHash('md5')
-    md5.update(macAddress + cpuModel + 'zyjy8410')
-    return md5.digest('hex')
+let machineCode = null
+export const getMachineCode = (showMsg = true) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (machineCode) resolve(machineCode)
+            const macAddress = await getCurrNetworkCardMacAddress()
+            const cpuModel = os.cpus()[0].model
+            const md5 = crypto.createHash('md5')
+            md5.update(macAddress + cpuModel + 'zyjy8410')
+            resolve(machineCode = md5.digest('hex'))
+        } catch (err) {
+            if (showMsg) {
+                ipcRenderer.send('show-message', null, {
+                    title: '对不起，我们都会有出错的时候',
+                    message: `请坐和放宽，请把以下信息截图给管理员，问题或许能够得到解决:)\r\n${err.stack}`
+                })
+            }
+            reject(err)
+        }
+    })
 }
 
-
-
+getMachineCode(false)
