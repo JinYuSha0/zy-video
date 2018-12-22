@@ -296,7 +296,7 @@ const getCurrNetworkCardMacAddress = () => {
                                 if (
                                     v.content.match(realMac.toUpperCase())
                                     && v.name.match('以太网')
-                                    && v.content.match(/.*\r\n/)[0].split(':')[1].match(/\S/)
+                                    // && v.content.match(/.*\r\n/)[0].split(':')[1].match(/\S/)
                                 ) {
                                     resolve(interFace.mac)
                                 }
@@ -312,26 +312,20 @@ const getCurrNetworkCardMacAddress = () => {
 }
 
 // 获取机器码
-let machineCode = null
-export const getMachineCode = (showMsg = true) => {
+export const getMachineCode = () => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (machineCode) resolve(machineCode)
             const macAddress = await getCurrNetworkCardMacAddress()
             const cpuModel = os.cpus()[0].model
             const md5 = crypto.createHash('md5')
             md5.update(macAddress + cpuModel + 'zyjy8410')
-            resolve(machineCode = md5.digest('hex'))
+            resolve(md5.digest('hex'))
         } catch (err) {
-            if (showMsg) {
-                ipcRenderer.send('show-message', null, {
-                    title: '对不起，我们都会有出错的时候',
-                    message: `请坐和放宽，请把以下信息截图给管理员，问题或许能够得到解决:)\r\n${err.stack}`
-                })
-            }
+            ipcRenderer.send('show-message', null, {
+                title: '对不起，我们都会有出错的时候',
+                message: `请坐和放宽，请把以下信息截图给管理员，问题或许能够得到解决:)\r\n${err.stack}`
+            })
             reject(err)
         }
     })
 }
-
-getMachineCode(false)

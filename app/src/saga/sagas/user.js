@@ -22,8 +22,8 @@ const confirm = Modal.confirm
 
 export function* login ({ payload }) {
     const { windowName, channel, params } = payload
-    const machineCode = yield getMachineCode()
     try {
+        const machineCode = yield getMachineCode()
         const result = yield call(sLogin, { ...params, 'machine_code': machineCode })
         if(result.status === 'success') {
             ipcRenderer.send('close-window', windowName)
